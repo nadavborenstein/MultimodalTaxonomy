@@ -8,10 +8,17 @@ from dataclasses import dataclass
 @dataclass
 class InputData:
     image_path: str
-    image : Image.Image = None
+    image_placeholder: str = "<|image_1|>"  # Placeholder for the image in the prompt
+    image: Image.Image = None  # Placeholder for the image object
+    post: str = ""
+    note: str = ""
     taxonomy_level: str = "head"
     system_prompt: str = ""
     user_prompt: str = ""
+    chat_template: str = ""
+    
+    def __str__(self):
+        return f"InputData(image_path={self.image_path}, post={self.post}, note={self.note}, taxonomy_level={self.taxonomy_level})"
     
 
 def get_possible_taxonomy_levels(taxonomy: Dict[str, Any]) -> List[str]:
@@ -69,7 +76,7 @@ def find_taxonomy_level(
 
 
 def construct_raw_prompt(
-    path: str, inputs: Dict, taxonomy_level: str = "head"
+    path: str, input_data: InputData
 ) -> Dict[str, str]:
     """_summary_
 
@@ -81,13 +88,15 @@ def construct_raw_prompt(
     Returns:
         str: _description_
     """
+    taxonomy_level = input_data.taxonomy_level
     taxonomy = json.load(open(f"{path}/full_taxonomy.json", "r"))
     taxonomy = find_taxonomy_level(taxonomy, taxonomy_level)
 
     prompt = open(f"{path}/main_flat_prompt.txt", "r").read()
     prompt = prompt.format(
         taxonomy=json.dumps(taxonomy, indent=2),
-        **inputs,
+        note=input_data.note,
+        post=input_data.post,
     )
 
     system_prompt = prompt[

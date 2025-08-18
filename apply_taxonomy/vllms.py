@@ -18,6 +18,7 @@ from vllm.multimodal.image import convert_image_mode
 from vllm.sampling_params import GuidedDecodingParams
 import json
 import pandas as pd
+from apply_taxonomy.input_output_utils import InputData
 
 from qwen_vl_utils import smart_resize
 
@@ -137,17 +138,17 @@ class VLM(object):
         )
         return prompt
     
-    def batch_generate(self, prompt: str, images: List[Image.Image], sampling_params: SamplingParams):
+    def batch_generate(self, input_data: List[InputData], sampling_params: SamplingParams):
         batch_size = self.args.batch_size
-        assert len(images) == batch_size, "Number of images must match batch size."
+        assert len(input_data) == batch_size, "Number of images must match batch size."
         
         inputs = []
 
-        for i, image in enumerate(images):
+        for input in input_data:
             inputs.append(
                 {
-                    "prompt": prompt,
-                    "multi_modal_data": {"image": image},
+                    "prompt": input.chat_template,
+                    "multi_modal_data": {"image": input.image},
                 }
             )
 
@@ -164,135 +165,3 @@ class VLM(object):
                 inputs, sampling_params=sampling_params, lora_request=lora_request
             )
         return outputs
-
-
-def run_generate(
-    args,
-    prompt: str,
-    examples: List[str],
-    image_paths: List[str],
-    system_prompt: Optional[str] = None,
-):
-
-    req_data = model_example_map[args.model_type](
-        prompt, num_images=len(examples) + 1, system_prompt=system_prompt
-    )
-    schema = ImageDescriptorBinary if "binary" in args.task else ImageDescriptor
-    guided_decoding_params = GuidedDecodingParams(json=schema.model_json_schema())
-    sampling_params = SamplingParams(
-        temperature=args.temperature,
-        max_tokens=args.max_tokens,
-        stop_token_ids=req_data.stop_token_ids,
-        guided_decoding=guided_decoding_params,
-    )
-
-    engine_args = asdict(req_data.engine_args) | {"seed": args.seed}
-    llm = LLM(**engine_args)
-    examples = load_images(examples, enable_smart_resize=args.model_type == "qwen25")
-    batch_generate(
-        args,
-        llm,
-        req_data,
-        sampling_params,
-        examples=examples,
-        image_paths=image_paths,
-    )
-
-
-def run_chat(
-    model: str,
-    question: str,
-    image_paths: list[str],
-    seed: Optional[int],
-    temperature: float = 0.0,
-    max_tokens: int = 256,
-):
-    req_data = model_example_map[model](question, image_paths)
-
-    # Disable other modalities to save memory
-    default_limits = {"image": 0, "video": 0, "audio": 0}
-    req_data.engine_args.limit_mm_per_prompt = default_limits | dict(
-        req_data.engine_args.limit_mm_per_prompt or {}
-    )
-
-    engine_args = asdict(req_data.engine_args) | {"seed": seed}
-    llm = LLM(**engine_args)
-
-    sampling_params = SamplingParams(
-        temperature=temperature,
-        max_tokens=max_tokens,
-        stop_token_ids=req_data.stop_token_ids,
-    )
-    outputs = llm.chat(
-        [
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": question,
-                    },
-                    *(
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": image_path},
-                        }
-                        for image_path in image_paths
-                    ),
-                ],
-            }
-        ],
-        sampling_params=sampling_params,
-        chat_template=req_data.chat_template,
-        lora_request=req_data.lora_requests,
-    )
-
-    print("-" * 50)
-    for o in outputs:
-        generated_text = o.outputs[0].text
-        print(generated_text)
-        print("-" * 50)
-
-
-def main(args: Namespace):
-    model = args.model_type
-    method = args.method
-    seed = args.seed
-
-    suffix = "chat" if args.chat else ""
-    suffix = "zero_shot" if args.zero_shot and not suffix else suffix
-
-    prompt = load_prompt(args.task, suffix=suffix)
-    system_prompt = (
-        load_prompt(args.task, suffix="system_prompt") if args.system_prompt else None
-    )
-    examples = load_examples(args.task) if not args.zero_shot else []
-    image_paths = glob(args.image_path + "/*.png")
-    print(f"There are a total of {len(image_paths)} images")
-
-    done_path = os.path.join(args.save_path, "image_type_annotation.csv")
-    if os.path.exists(done_path):
-        print()
-        done = pd.read_csv(done_path)
-        done_images = set(done["image_path"].values)
-        print(f"There are a total of {len(done_images)} images already processed")
-        image_paths = [path for path in image_paths if path not in done_images]
-        print(f"Processing {len(image_paths)} images.")
-
-    if method == "generate":
-        run_generate(
-            args,
-            prompt,
-            examples,
-            image_paths,
-            system_prompt=system_prompt,
-        )
-    elif method == "chat":
-        run_chat(model, prompt, image_paths, seed)
-    else:
-        raise ValueError(f"Invalid method: {method}")
-
-
-if __name__ == "__main__":
-    args = parse_args()
-    main(args)

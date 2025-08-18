@@ -1,6 +1,18 @@
 from argparse import Namespace
 from vllm.utils import FlexibleArgumentParser
-from vllms import model_example_map
+from apply_taxonomy.input_output_utils import InputData, construct_raw_prompt, load_images
+from apply_taxonomy.vllms import VLM, model_example_map
+from glob import glob
+import pandas as pd
+import os
+import logging
+
+# set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 def parse_args():
@@ -92,44 +104,69 @@ def parse_args():
     return parser.parse_args()
 
 
-def main(args: Namespace):
-    model = args.model_type
-    method = args.method
-    seed = args.seed
-
-    suffix = "chat" if args.chat else ""
-    suffix = "zero_shot" if args.zero_shot and not suffix else suffix
-
-    prompt = load_prompt(args.task, suffix=suffix)
-    system_prompt = (
-        load_prompt(args.task, suffix="system_prompt") if args.system_prompt else None
-    )
-    examples = load_examples(args.task) if not args.zero_shot else []
+def load_inputs(args, vlm):
     image_paths = glob(args.image_path + "/*.png")
-    print(f"There are a total of {len(image_paths)} images")
-
-    done_path = os.path.join(args.save_path, "image_type_annotation.csv")
-    if os.path.exists(done_path):
-        print()
-        done = pd.read_csv(done_path)
-        done_images = set(done["image_path"].values)
-        print(f"There are a total of {len(done_images)} images already processed")
-        image_paths = [path for path in image_paths if path not in done_images]
-        print(f"Processing {len(image_paths)} images.")
-
-    if method == "generate":
-        run_generate(
-            args,
-            prompt,
-            examples,
-            image_paths,
-            system_prompt=system_prompt,
+    notes = pd.read_csv(args.notes_path)
+    
+    inputs = []
+    for image_path, note, post in zip(
+        image_paths, notes["note"].value, notes["post"].value
+    ):  
+        
+        input_data = InputData(
+            image_path=image_path,
+            note=note,
+            post=post,
+            image_placeholder=vlm.image_substring_marker,
+            taxonomy_level=args.taxonomy_level,
         )
-    elif method == "chat":
-        run_chat(model, prompt, image_paths, seed)
-    else:
-        raise ValueError(f"Invalid method: {method}")
+        prompt = construct_raw_prompt(args.prompt_path, input_data)
+        input_data.system_prompt = prompt["system_prompt"]
+        input_data.user_prompt = prompt["user_prompt"]
+        inputs.append(input_data)
+    return inputs
 
+
+def main(args: Namespace):
+
+    vlm = VLM(args)
+    logging.info(f"Using model: {args.model_type}")
+    
+    inputs = load_inputs(image_paths, vlm)
+    logging.info(f"Loaded {len(inputs)} inputs for processing.")
+    
+    sampling_params = SamplingParams(
+        temperature=args.temperature,
+        max_tokens=args.max_tokens,
+        stop_token_ids=req_data.stop_token_ids,
+        guided_decoding=guided_decoding_params,
+    )
+        
+    for batch_data in range(0, len(inputs), args.batch_size):
+        batch_id = batch_data // args.batch_size
+        logging.info(f"Processing batch {batch_id + 1} with {args.batch_size} inputs.")
+        
+        batch_inputs = inputs[batch_data:batch_data + args.batch_size]
+        image_paths = [input_data.image_path for input_data in batch_inputs]
+        images = load_images(image_paths, enable_smart_resize=True)
+        
+        for input, image in zip(batch_inputs, images):
+            input.image = image
+            input.chat_template = vlm.apply_chat_template(input.user_prompt, input.system_prompt)
+            
+        logging.info(f"Loaded {len(images)} images for batch {batch_id + 1}.")
+        
+        # Prepare the prompt and system prompt
+               
+        outputs = vlm.batch_generate(
+            batch_inputs,
+            sampling_params
+        )
+        
+        # Process outputs as needed, e.g., save to file or print
+        for output in outputs:
+            print(output)
+    
 
 if __name__ == "__main__":
     args = parse_args()
