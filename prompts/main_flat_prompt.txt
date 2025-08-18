@@ -1,0 +1,291 @@
+<SYSTEM PROMPT> 
+You are an expert fact-checking system that specialises in annotating multimodal misinformation that is spread in social media. Your goal is to annotate a triplet <post, image, fact-check verdict> with a collection of labels describing the relationship between the post and the image, and the different ways in which the image is used to promote misinformation. You will be provided the <post, image, fact-check verdict> triplet and a taxonomy of labels. Your task is to select all the labels that apply to the triplet. Your answer should be a simple JSON file with the selected labels. 
+</SYSTEM PROMPT>
+
+
+<USER PROMPT>
+
+<instructions>
+You are an expert fact-checking system that specialises in annotating multimodal misinformation from social media. 
+You will be given a <post, image, fact-check verdict> triplet, where <post, image> are the text and image posted on a social media platform that contain some claim, and <fact-check verdict> is a fact-checking verdict determining whether the <post, image> spread misinformation and why. 
+Your goal is to analyse the <post, image, fact-check verdict> triplet, and annotate it with labels from the multimodal-misinformation taxonomy provided below. The labels should describe the relationship between <post> and <image>, the issues in <image> raised by <fact-check verdict>, and the different ways in which the image and post promote misinformation. Importantly, each <post, image, fact-check verdict> triplet can be annotated with more than one label. 
+</instructions>
+
+<taxonomy>
+The taxonomy has a JSON structure. Only leafs (marked with the "label_" prefix) are valid labels for selection.
+
+{
+    "multimodal_taxonomy": 
+    {
+        "visual_evidence": 
+        {
+            "description": "Labels related to the multimodal claims and the evidence presented by the claim's author.",
+            "image_focused":
+            {
+                "description": "The main issue with the multimodal claim is that the image used as evidence is fake or manipulated.",
+                "Manipulation":
+                {
+                    "description": "<image> is a real image that was altered in some manner.",
+                    "labels":
+                    {
+                        "label_addition": "Fake details were added to the image using digital means, such as Photoshop.",
+                        "label_removal": "Important details were erased or removed from the image, e.g., using cropping.",
+                        "label_replacement": "Entire entities or elements in the image were replaced with different, fake ones.",
+                        "label_textual": "Some text in the image was edited.",
+                        "label_edit": "The image was edited in some other means, e.g., changing the facial expression of a person."
+                    }
+                },
+                "manufactured":
+                {
+                    "description": "<image> is a fake image that were constructed from scratch.",
+                    "labels":
+                    {
+                        "label_AI_generated": "<image> is AI generated",
+                        "label_forgery": "<image> contains a forged document, tweet or other text-based fakes.",
+                        "label_staged": "The event depicted in <image> was staged."
+
+                    }
+                }
+            },
+            "provenance_focused": 
+            {
+                "description": "The main issue with <post,image> is the source or the credibility of the information presented in <image>.",
+                "labels":
+                {
+                    "label_satire": "The source is a satirical account/outlet.",
+                    "label_imposter": "The source is an imposter, impersonating an entity (without clearly acknowledging it).",
+                    "label_other_provenance_issues": "other types of provenance issues."
+                }
+            },
+            "image_text_focused":
+            {
+                "description": "The main issue <post, image> is a mismatch between <image> and the text in <post>. The image is real and presented as evidence, but the claim made about the image is false.",
+                "context_mismatch":
+                {
+                    "description": "<post> wrongly describes an element or attribute of <image>.",
+                    "labels":
+                    {
+                        "label_identity_mismatch": "<post> incorrectly names an entity in <image>.",
+                        "label_time_mismatch": "<post> incorrectly describes the time/date of when <image> was captured.",
+                        "label_place_mismatch": "<post> incorrectly describes the location of where <image> was captured.",
+                        "label_event_mismatch": "There is a discrepancy between regarding the event depicted in <image> and the textual description in <post>. (e.g., a concert is described as a protest)",
+                        "label_other_mismatch": "Any other type of mismatch."
+                    }
+                },
+                "misleading_representation":
+                {
+                    "description": "<post> correctly identifies or names all the elements or attributes of <image>, but <image> is still being described in a misleading way by <post>, usually by omiting important context.",
+                    "labels":
+                    {
+                        "label_over_underestimation_of_severity": "the text in <post> misinterprets the severity of what is depicted in <image>.",
+                        "label_misinterpretation_of_consequences": "<post> contains a false claim regarding the consequences of what is depicted in <image>.",
+                        "label_over_underestimation_of_frequency": "<post> misinterprets the frequency/uniqueness of the event depicted in <image>.",
+                        "label_scientific_errors_or_conspiracies": "<post> contains a false scientific claim not grounded in scientific evidence, or promotes a known conspiracy theory.",
+                        "label_misinterpretation_of_relevance": "<post> misinterprets the relevance of <image> to some other event, i.e., falsly claiming that it is relevant",
+                        "label_slanted_representation": "<post> omits other types of important context.",
+                        "label_other_misinterpretation_or_misleading_representation": "<post> descibes <image> in a different misleading way."
+                    }
+                },
+                "denial":
+                {
+                    "description": "<image> is real and authentic, but <post> claims that it is manipulated or manufactured."
+                    "labels":
+                    {
+                        "label_deinal": "<image> is real and authentic, but <post> claims that it is manipulated or manufactured."
+                    }
+                }
+                 
+            }
+        },
+        "visual_rhetoric":
+        {
+            "description": "Labels related to the emotions evoked by <image>, its framing, and how it is being used to ground and contextualise the claim in <post>.",
+            "Emotional_manipulation_and_framing":
+            {
+                "description": "The emotions and feelings that <image> might evoke in the reader, and the conceptual association it might have.",
+                "emotion":
+                {
+                    "description": "The positive or negative emotions the image might evoke.",
+                    "positive_emotions":
+                    {
+                        "description": "possible positive emotions that <image> might evoke",
+                        "labels":
+                        [
+                            "label_joy",
+                            "label_hope",
+                            "label_pride",
+                            "label_curiousity",
+                            "label_other_positive_emotion"
+                        ]
+                    },
+                    "negative_emotions":
+                    {
+                        "description": "possible negative emotions that <image> might evoke",
+                        "labels":
+                        [
+                            "label_anger",
+                            "label_sadness",
+                            "label_fear",
+                            "label_ridicule",
+                            "label_other_negative_emotion"
+                        ]
+                    },
+                    "neutral_emotions":
+                    {
+                        "description": "possible neutral emotions that <image> might evoke",
+                        "labels":
+                        [
+                            "label_neutral_emotion"
+                        ]
+                    }
+                },
+                "framing":
+                {
+                    "description": "The topical association that <image> might evoke.",
+                    "labels":
+                    {
+                        "label_morality": "Any perspective—or policy objective or action (including proposed action)—that is compelled by religious doctrine or interpretation, duty, honor, righteousness or any other sense of ethics or social responsibility.",
+                        "label_fairness_and_equality": "Equality or inequality with which laws, punishment, rewards, and resources are applied or distributed among individuals or groups. Also the balance between the rights or interests of one individual or group compared to another individual or group.",
+                        "label_constitutionality_and_jurisprudence": "The constraints imposed on or freedoms granted to individuals, government, and corporations via the Constitution, Bill of Rights and other amendments, or judicial interpretation. This deals specifically with the authority of government to regulate, and the authority of individuals/corporations to act independently of government.",
+                        "label_policy_prescription_and_evaluation": "Particular policies proposed for addressing an identified problem, and figuring out if certain policies will work, or if existing policies are effective.",
+                        "label_law_and_order_crime_and_justice": "Specific policies in practice and their enforcement, incentives, and implications. Includes stories about enforcement and interpretation of laws by individuals and law enforcement, breaking laws, loopholes, fines, sentencing and punishment. Increases or reductions in crime.",
+                        "label_security_and_defence": "Security, threats to security, and protection of one’s person, family, in-group, nation, etc. Generally an action or a call to action that can be taken to protect the welfare of a person, group, nation sometimes from a not yet manifested threat.",
+                        "label_health_and_safety": "Healthcare access and effectiveness, illness, disease, sanitation, obesity, mental health effects, prevention of or perpetuation of gun violence, infrastructure and building safety.",
+                        "label_quality_of_life": "The effects of a policy on individuals’ wealth, mobility, access to resources, happiness, social structures, ease of day-to-day routines, quality of community life etc.",
+                        "label_cultural_identity": "The social norms, trends, values and customs constituting culture(s), as they relate to a specific policy issue.",
+                        "label_public_opinion": "References to general social attitudes, polling and demographic information, as well as implied or actual consequences of diverging from or getting ahead of public opinion or polls.",
+                        "label_political": "Any political considerations surrounding an issue. Issue actions or efforts or stances that are political, such as partisan filibusters, lobbyist involvement, bipartisan efforts, deal-making and vote trading, appealing to one’s base, mentions of political manoeuvring. Explicit statements that a policy issue is good or bad for a particular political party.",
+                        "label_external_regulation_and_reputation": "The United States’ external relations with another nation; the external relations of one state with another; or relations between groups. This includes trade agreements and outcomes, comparisons of policy outcomes or desired policy outcomes.",
+                        "label_capacity_and_resources":  "The lack of or availability of physical, geographical, spatial, human, and financial resources, or the capacity of existing systems and resources to implement or carry out policy goals.",
+                        "label_economic": "The costs, benefits, or monetary/financial implications of the issue (to an individual, family, community or to the economy as a whole).",
+                        "label_other_frame": "Any frames that do not fit into the above categories."
+                    }
+                }
+            },
+            "informative_purpose":
+            {
+                "description": "Labels related to the way <image> is used to effects on the reader’s understanding or memory.",
+                "contextualize": 
+                {
+                    "description": "<image> contextualises <post> with real-world examples.",
+                    "labels":
+                    {
+                        "label_concretize": "<image> contains a concrete example of a broader claim in <post>",
+                        "label_humanize": "<image> represents elements within <post> in the form of a living being, making the claim feels more personal.",
+                        "label_other_contextualization": "other forms of contextualization"
+                    }
+                },
+                "illustrate":
+                {
+                    "description": "<image> contains a visualisation to support or explain the claim in <post>.",
+                    "labels":
+                    {
+                        "label_infographic": "<image> contains a high-detailed visualisation, in the form of graphs, maps, and chart flows.",
+                        "label_visualise": "<image> contains a simple illustration to assist the reader in understanding the claim in <post>.",
+                        "label_other_illustration": "<image> helps explaining <post> in some other way."
+                    }
+                },
+                "decorative":
+                {
+                    "description": "Not informative -- <image> makes <post> more attractive without aiming to produce any real con effects on the reader’s understanding or memory.",
+                    "labels":
+                    {
+                        "label_decorative": "<image> makes <post> more attractive without aiming to produce any real con effects on the reader’s understanding or memory."
+                    }
+                }
+            }
+        },
+        "visual_structure":
+        {
+            "description": "The structure of <image>, its type and the way it is organized.",
+            "simple_photo":
+            {
+                "description": "<image> was taken using a camera and was not edited or manipulated.",
+                "labels":
+                {
+                    "label_people": "<image>'s main element is one or more people",
+                    "label_event": "<image>'s main element is an event that takes place",
+                    "label_environment": "<image>'s main element is a landscape, city-scape, etc.",
+                    "label_document": "<image>'s main element is a document",
+                    "label_other_simple_photo": "<image> depicts another type of element"
+                }
+            },
+            "complex_structure":
+            {
+                "description": "<image> contains several elements, including images, text, and other graphics. The elements, however, are not independent of each other.",
+                "labels":
+                {
+                    "label_meme": "<image> is a meme -- an image overlayed with a short text.",
+                    "label_interface": "<image> is a program's interface, including menues, windows, etc.",
+                    "label_annotated_image": "<image> is an annotated image -- image overlayed with visual elements such as arrows, highlights, etc."
+                }
+            },
+            "computer_generated":
+            {
+                "description": "<image> was made using a computer, such as computer graphics or software's API.",
+                "labels":
+                {
+                    "label_screenshot": "<image> contains a screenshot.",
+                    "label_document": "<image> is a textual document, such as email, news article, etc.",
+                    "label_computer_graphic_or_art": "<image> contains 3D or 2D computer graphic or digital art.",
+                    "label_infographic": "<image> contains an infographic, such as a map, graph, plot, etc."
+                }
+            },
+            "multi_image":
+            {
+                "description": "<image> is composed of multiple independent images, each representing a separate claim or a part of a claim.",
+                "labels":
+                {
+                    "label_multi_image": "<image> is composed of multiple independent images, each representing a separate claim or a part of a claim."
+                }
+            }
+        },
+        "not_a_claim":
+        {
+            "description": "<post, image> does not contain a proper claim, but rather an ad, scam, stolen content, or engagemet bait.",
+            "labels":
+            {
+                "label_ad": "<post, image> is an undisclosed ad",
+                "label_scam": "<post, image> contains a scam of some sort",
+                "label_stolen_content": "<image> was posted without properly crediting its creator",
+                "label_engagement_bait": "<post, image> is an engagemet bait -- trying to provoke a strong reaction from the reader." 
+            }
+        }
+    }
+}
+
+</taxonomy>
+
+<output format>
+The output should be a JSON file containing a list of all the labels that apply, and the reasoning for selecting each label, as follows.
+{
+    "labels": 
+    [
+        {
+            "label_name": [LABEL NAME],
+            "reasoning": [REASONING]
+        },
+        ...
+        {
+            "label_name": [LABEL NAME],
+            "reasoning": [REASONING]
+        }
+    ]
+}
+</output format>
+
+<input>
+    <post>
+    {{POST}}
+    </post>
+
+    <image>
+    {{IMAGE}}
+    </image>
+
+    <fact-check verdict>
+    {{NOTE}}
+    </fact-check verdict>
+</input>
+
+</USER PROMPT>
