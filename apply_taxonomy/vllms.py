@@ -2,9 +2,7 @@ import os
 from contextlib import contextmanager
 from dataclasses import asdict
 from PIL import Image
-
 from argparse import Namespace
-
 from typing import NamedTuple, Optional, List
 
 from glob import glob
@@ -18,8 +16,7 @@ from vllm.multimodal.image import convert_image_mode
 from vllm.sampling_params import GuidedDecodingParams
 import json
 import pandas as pd
-from apply_taxonomy.input_output_utils import InputData
-
+from input_output_utils import InputData
 from qwen_vl_utils import smart_resize
 
 
@@ -58,7 +55,7 @@ class VLM(object):
 
         self.processor = AutoProcessor.from_pretrained(self.model)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model)
-        if args.load_model:
+        if args.debug_mode:
             self.vlm = self.load_vlm()
         else:
             self.vlm = None

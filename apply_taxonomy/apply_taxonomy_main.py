@@ -1,11 +1,13 @@
 from argparse import Namespace
 from vllm.utils import FlexibleArgumentParser
-from apply_taxonomy.input_output_utils import InputData, construct_raw_prompt, load_images
-from apply_taxonomy.vllms import VLM, model_example_map
+from input_output_utils import InputData, construct_raw_prompt, load_images
+from vllms import VLM
 from glob import glob
 import pandas as pd
 import os
 import logging
+from vllm import SamplingParams
+
 
 # set up logging
 logging.basicConfig(
@@ -22,12 +24,39 @@ def parse_args():
         "generation"
     )
     parser.add_argument(
-        "--model-type",
+        "--model-name",
         "-m",
         type=str,
         default="gemma3",
-        choices=model_example_map.keys(),
+        choices=VLM.models.keys(),
         help='Huggingface "model_type".',
+    )
+    parser.add_argument(
+        "--notes-path",
+        type=str,
+        help="path to the directory containing the images",
+        default="/home/knf792/gits/MultimodalTaxonomy/data/tweets_with_images.csv",
+    )
+    parser.add_argument(
+        "--prompt-path",
+        type=str,
+        help="path to the directory containing the images",
+        default="/home/knf792/gits/MultimodalTaxonomy/prompts/",
+    )
+    parser.add_argument(
+        "--debug-mode", action="store_true", help="Whether to load the model or not. "
+    )
+    parser.add_argument(
+        "--taxonomy-level",
+        type=str,
+        default="multimodal_taxonomy",
+        help="The taxonomy level to apply. Currently only 'type' and 'subtype' are supported.",
+    )
+    parser.add_argument(
+        "--image-path",
+        type=str,
+        help="path to the directory containing the images",
+        default="/home/knf792/gits/MMFC-cnotes/data/tweet_images/",
     )
     parser.add_argument(
         "--method",
@@ -78,12 +107,6 @@ def parse_args():
         help="Whether to include a system prompt in the chat template.",
     )
     parser.add_argument(
-        "--image-path",
-        type=str,
-        help="path to the directory containing the images",
-        default="/home/knf792/gits/MMFC-cnotes/docs/test_images/",
-    )
-    parser.add_argument(
         "--save-path",
         type=str,
         help="path to where to save the results",
@@ -105,16 +128,15 @@ def parse_args():
 
 
 def load_inputs(args, vlm):
-    image_paths = glob(args.image_path + "/*.png")
     notes = pd.read_csv(args.notes_path)
-    
+
     inputs = []
-    for image_path, note, post in zip(
-        image_paths, notes["note"].value, notes["post"].value
-    ):  
-        
+    for image_name, note, post in zip(
+        notes["image_name"].values, notes["summary"].values, notes["full_text"].values
+    ):
+
         input_data = InputData(
-            image_path=image_path,
+            image_path=args.image_path + image_name,
             note=note,
             post=post,
             image_placeholder=vlm.image_substring_marker,
@@ -130,43 +152,43 @@ def load_inputs(args, vlm):
 def main(args: Namespace):
 
     vlm = VLM(args)
-    logging.info(f"Using model: {args.model_type}")
-    
-    inputs = load_inputs(image_paths, vlm)
+    logging.info(f"Using model: {args.model_name}")
+
+    inputs = load_inputs(args, vlm)
     logging.info(f"Loaded {len(inputs)} inputs for processing.")
-    
+
+    breakpoint()
     sampling_params = SamplingParams(
         temperature=args.temperature,
         max_tokens=args.max_tokens,
         stop_token_ids=req_data.stop_token_ids,
         guided_decoding=guided_decoding_params,
     )
-        
+
     for batch_data in range(0, len(inputs), args.batch_size):
         batch_id = batch_data // args.batch_size
         logging.info(f"Processing batch {batch_id + 1} with {args.batch_size} inputs.")
-        
-        batch_inputs = inputs[batch_data:batch_data + args.batch_size]
+
+        batch_inputs = inputs[batch_data : batch_data + args.batch_size]
         image_paths = [input_data.image_path for input_data in batch_inputs]
         images = load_images(image_paths, enable_smart_resize=True)
-        
+
         for input, image in zip(batch_inputs, images):
             input.image = image
-            input.chat_template = vlm.apply_chat_template(input.user_prompt, input.system_prompt)
-            
+            input.chat_template = vlm.apply_chat_template(
+                input.user_prompt, input.system_prompt
+            )
+
         logging.info(f"Loaded {len(images)} images for batch {batch_id + 1}.")
-        
+
         # Prepare the prompt and system prompt
-               
-        outputs = vlm.batch_generate(
-            batch_inputs,
-            sampling_params
-        )
-        
+
+        outputs = vlm.batch_generate(batch_inputs, sampling_params)
+
         # Process outputs as needed, e.g., save to file or print
         for output in outputs:
             print(output)
-    
+
 
 if __name__ == "__main__":
     args = parse_args()

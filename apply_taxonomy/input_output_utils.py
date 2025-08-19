@@ -5,6 +5,7 @@ from qwen_vl_utils import smart_resize
 import pandas as pd
 from dataclasses import dataclass
 
+
 @dataclass
 class InputData:
     image_path: str
@@ -16,10 +17,10 @@ class InputData:
     system_prompt: str = ""
     user_prompt: str = ""
     chat_template: str = ""
-    
+
     def __str__(self):
         return f"InputData(image_path={self.image_path}, post={self.post}, note={self.note}, taxonomy_level={self.taxonomy_level})"
-    
+
 
 def get_possible_taxonomy_levels(taxonomy: Dict[str, Any]) -> List[str]:
     """Get the possible taxonomy levels from the taxonomy JSON file.
@@ -75,9 +76,14 @@ def find_taxonomy_level(
         return recursive_find_key(taxonomy, taxonomy_level)
 
 
-def construct_raw_prompt(
-    path: str, input_data: InputData
-) -> Dict[str, str]:
+def multiple_replace(s, replacements: Dict[str, str]) -> str:
+    """Replace multiple substrings in a string with corresponding values from a dictionary."""
+    for key, replacement in replacements.items():
+        s = s.replace(r"{{" + key + r"}}", replacement)
+    return s
+
+
+def construct_raw_prompt(path: str, input_data: InputData) -> Dict[str, str]:
     """_summary_
 
     Args:
@@ -93,12 +99,15 @@ def construct_raw_prompt(
     taxonomy = find_taxonomy_level(taxonomy, taxonomy_level)
 
     prompt = open(f"{path}/main_flat_prompt.txt", "r").read()
-    prompt = prompt.format(
-        taxonomy=json.dumps(taxonomy, indent=2),
-        note=input_data.note,
-        post=input_data.post,
+    prompt = multiple_replace(
+        prompt,
+        {
+            "image": input_data.image_placeholder,
+            "post": input_data.post,
+            "note": input_data.note,
+            "taxonomy": json.dumps(taxonomy, indent=2),
+        },
     )
-
     system_prompt = prompt[
         prompt.find("<SYSTEM_PROMPT>")
         + len("<SYSTEM_PROMPT>") : prompt.find("</SYSTEM_PROMPT>")
@@ -107,14 +116,13 @@ def construct_raw_prompt(
         prompt.find("<USER_PROMPT>")
         + len("<USER_PROMPT>") : prompt.find("</USER_PROMPT>")
     ]
-
     return {
         "system_prompt": system_prompt.strip(),
         "user_prompt": user_prompt.strip(),
         "taxonomy": taxonomy,
     }
-    
-    
+
+
 def load_images(image_paths: list[str], enable_smart_resize=False) -> list[Image.Image]:
     images = [Image.open(path).convert("RGB") for path in image_paths]
     if enable_smart_resize:
