@@ -23,13 +23,13 @@ The output should be a JSON file containing a list of all the labels that apply,
     "labels": 
     [
         {
-            "label_name": [LABEL NAME],
             "reasoning": [REASONING]
+            "label_name": [LABEL NAME],
         },
         ...
         {
-            "label_name": [LABEL NAME],
             "reasoning": [REASONING]
+            "label_name": [LABEL NAME],
         }
     ]
 }
@@ -41,7 +41,9 @@ The output should be a JSON file containing a list of all the labels that apply,
     </post>
 
     <image>
+
     {{image}}
+
     </image>
 
     <fact-check verdict>

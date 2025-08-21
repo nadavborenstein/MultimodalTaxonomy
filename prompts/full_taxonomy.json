@@ -13,10 +13,10 @@
                     "labels":
                     {
                         "label_addition": "Fake details were added to the image using digital means, such as Photoshop.",
-                        "label_removal": "Important details were erased or removed from the image, e.g., using cropping.",
+                        "label_removal": "Real details were erased or removed from the image, e.g., using cropping.",
                         "label_replacement": "Entire entities or elements in the image were replaced with different, fake ones.",
-                        "label_textual": "Some text in the image was edited.",
-                        "label_edit": "The image was edited in some other means, e.g., changing the facial expression of a person."
+                        "label_textual": "Some text in the image was edited or added.",
+                        "label_edit": "The image was edited in some other means, e.g., changing the facial expression of a person or adding a filter."
                     }
                 },
                 "manufactured":
@@ -49,7 +49,7 @@
                     "description": "<post> wrongly describes an element or attribute of <image>.",
                     "labels":
                     {
-                        "label_identity_mismatch": "<post> incorrectly names an entity in <image>.",
+                        "label_identity_mismatch": "<post> incorrectly names an entity in <image>, such as a person, a brand, or an object.",
                         "label_time_mismatch": "<post> incorrectly describes the time/date of when <image> was captured.",
                         "label_place_mismatch": "<post> incorrectly describes the location of where <image> was captured.",
                         "label_event_mismatch": "There is a discrepancy between regarding the event depicted in <image> and the textual description in <post>. (e.g., a concert is described as a protest)",
@@ -62,7 +62,7 @@
                     "labels":
                     {
                         "label_over_underestimation_of_severity": "the text in <post> misinterprets the severity of what is depicted in <image>.",
-                        "label_misinterpretation_of_consequences": "<post> contains a false claim regarding the consequences of what is depicted in <image>.",
+                        "label_misinterpretation_of_consequences": "<post> contains a false or misleading claim regarding the consequences of what is depicted in <image>.",
                         "label_over_underestimation_of_frequency": "<post> misinterprets the frequency/uniqueness of the event depicted in <image>.",
                         "label_scientific_errors_or_conspiracies": "<post> contains a false scientific claim not grounded in scientific evidence, or promotes a known conspiracy theory.",
                         "label_misinterpretation_of_relevance": "<post> misinterprets the relevance of <image> to some other event, i.e., falsly claiming that it is relevant",
@@ -188,9 +188,10 @@
                 "labels":
                 {
                     "label_people": "<image>'s main element is one or more people",
-                    "label_event": "<image>'s main element is an event that takes place",
-                    "label_environment": "<image>'s main element is a landscape, city-scape, etc.",
-                    "label_document": "<image>'s main element is a document",
+                    "label_object": "<image>'s main element is an object or a thing",
+                    "label_event": "<image>'s main element is an event or an activity",
+                    "label_environment": "<image>'s main element is a place or a setting",
+                    "label_document": "<image>'s main element is a document or a piece of text",
                     "label_other_simple_photo": "<image> depicts another type of element"
                 }
             },
@@ -199,9 +200,10 @@
                 "description": "<image> contains several elements, including images, text, and other graphics. The elements, however, are not independent of each other.",
                 "labels":
                 {
-                    "label_meme": "<image> is a meme -- an image overlayed with a short text.",
-                    "label_interface": "<image> is a program's interface, including menues, windows, etc.",
-                    "label_annotated_image": "<image> is an annotated image -- image overlayed with visual elements such as arrows, highlights, etc."
+                    "label_meme": "<image> is a meme, typically humorous, combining text and visuals to convey a message or joke.",
+                    "label_interface": "<image> is an interface, such as a user interface or a graphical user interface, showing how a system, software, or application looks, including menues, windows, etc.",
+                    "label_annotated_image": "<image> is an annotated image -- image overlayed with visual elements such as arrows, highlights, etc. to provide context or explanation.",
+                    "label_collage": "<image> is a collage, combining multiple images or elements into a single composition."
                 }
             },
             "computer_generated":
@@ -209,10 +211,10 @@
                 "description": "<image> was made using a computer, such as computer graphics or software's API.",
                 "labels":
                 {
-                    "label_screenshot": "<image> contains a screenshot.",
-                    "label_document": "<image> is a textual document, such as email, news article, etc.",
-                    "label_computer_graphic_or_art": "<image> contains 3D or 2D computer graphic or digital art.",
-                    "label_infographic": "<image> contains an infographic, such as a map, graph, plot, etc."
+                    "label_screenshot": "<image> is a screenshot, capturing a moment from a digital screen, such as a website, app, or video.",
+                    "label_document": "<image> is a document, such as a scanned page, a PDF, an email, or a digital file that mainly contains text.",
+                    "label_computer_graphic_or_art": "<image> is a computer graphic or art, created using digital tools or software, such as a digital painting, 3D rendering, or graphic design.",
+                    "label_infographic": "<image> is an infographic, combining text and visuals to convey information, such as a map, graph, plot, etc."
                 }
             },
             "multi_image":

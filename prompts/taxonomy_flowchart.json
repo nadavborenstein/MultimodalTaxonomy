@@ -1,0 +1,542 @@
+{
+    "question_1": {
+        "text": "Is <image> a single, simple photo taken with a camera, with no other visual or textual elements added to it?",
+        "answer_1": {
+            "text": "yes",
+            "question_1": {
+                "text": "What is depicted in the image?",
+                "multichoice_1": {
+                    "label": "person",
+                    "description": "<image>'s main element is one or more people"
+                },
+                "multichoice_2": {
+                    "label": "object",
+                    "description": "<image>'s main element is an object or a thing"
+                },
+                "multichoice_3": {
+                    "label": "environment",
+                    "description": "<image>'s main element is a place or a setting"
+                },
+                "multichoice_4": {
+                    "label": "event",
+                    "description": "<image>'s main element is an event or an activity"
+                },
+                "multichoice_5": {
+                    "label": "document",
+                    "description": "<image>'s main element is a document or a piece of text"
+                },
+                "multichoice_6": {
+                    "label": "other",
+                    "description": "<image> depicts another type of element"
+                }
+            }
+        },
+        "answer_2": {
+            "text": "no",
+            "question_1": {
+                "text": "Is <image> composed of multiple independent images, each representing a separate claim or a part of a claim?",
+                "answer_1": {
+                    "text": "yes",
+                    "label": "Multi-image"
+                },
+                "answer_2": {
+                    "text": "no",
+                    "question_1": {
+                        "text": "What is the type of the image?",
+                        "multichoice_1": {
+                            "label": "meme",
+                            "description": "<image> is a meme, typically humorous, combining text and visuals to convey a message or joke."
+                        },
+                        "multichoice_2": {
+                            "label": "interface",
+                            "description": "<image> is an interface, such as a user interface or a graphical user interface, showing how a system, software, or application looks, including menues, windows, etc."
+                        },
+                        "multichoice_3": {
+                            "label": "annotated_image",
+                            "description": "<image> is an annotated image -- image overlayed with visual elements such as arrows, highlights, etc. to provide context or explanation."
+                        },
+                        "multichoice_4": {
+                            "label": "screenshot",
+                            "description": "<image> is a screenshot, capturing a moment from a digital screen, such as a website, app, or video."
+                        },
+                        "multichoice_5": {
+                            "label": "document",
+                            "description": "<image> is a document, such as a scanned page, a PDF, an email, or a digital file that mainly contains text."
+                        },
+                        "multichoice_6": {
+                            "label": "computer_graphic_or_art",
+                            "description": "<image> is a computer graphic or art, created using digital tools or software, such as a digital painting, 3D rendering, or graphic design."
+                        },
+                        "multichoice_7": {
+                            "label": "infographic",
+                            "description": "<image> is an infographic, combining text and visuals to convey information, such as a map, graph, plot, etc."
+                        },
+                        "multichoice_8": {
+                            "label": "Collage",
+                            "description": "<image> is a collage, combining multiple images or elements into a single composition."
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "question_2": {
+        "text": "What type of emotion does the image evoke?",
+        "answer_1": {
+            "text": "positive",
+            "question_1": {
+                "text": "What is the main positive emotion conveyed in the image?",
+                "multichoice_1": {
+                    "label": "joy",
+                    "description": "<image> conveys joy, happiness, or excitement."
+                },
+                "multichoice_2": {
+                    "label": "hope",
+                    "description": "<image> conveys hope, optimism, or encouragement."
+                },
+                "multichoice_3": {
+                    "label": "pride",
+                    "description": "<image> conveys pride in oneself or others, or a sense of accomplishment."
+                },
+                "multichoice_4": {
+                    "label": "curiousity",
+                    "description": "<image> conveys curiosity, interest, or wonder."
+                },
+                "multichoice_5": {
+                    "label": "other_positive_emotion",
+                    "description": "<image> conveys another positive emotion not listed above."
+                }
+            }
+        
+        },
+        "answer_2": {
+            "text": "negative",
+            "question_1": {
+                "text": "What is the main negative emotion conveyed in the image?",
+                "multichoice_1": {
+                    "label": "anger",
+                    "description": "<image> conveys anger, frustration, or irritation."
+                },
+                "multichoice_2": {
+                    "label": "sadness",
+                    "description": "<image> conveys sadness, grief, or disappointment."
+                },
+                "multichoice_3": {
+                    "label": "fear",
+                    "description": "<image> conveys fear, anxiety, or concern."
+                },
+                "multichoice_4": {
+                    "label": "ridicule",
+                    "description": "<image> conveys ridicule, mockery, or scorn."
+                },
+                "multichoice_5": {
+                    "label": "other_negative_emotion",
+                    "description": "<image> conveys another negative emotion not listed above."
+                }
+            }
+        },
+        "answer_3": {
+            "text": "neutral",
+            "label": "neutral_emotion"
+        }
+    },
+    "question_3": {
+        "text": "What is the framing of <image>, i.e., the topical association that the image evoke?",
+        "multichoice_1": {
+            "label": "morality",
+            "description": "Any perspective—or policy objective or action (including proposed action)—that is compelled by religious doctrine or interpretation, duty, honor, righteousness or any other sense of ethics or social responsibility."
+        },
+        "multichoice_2": {
+            "label": "fairness_and_equality",
+            "description": "Equality or inequality with which laws, punishment, rewards, and resources are applied or distributed among individuals or groups. Also the balance between the rights or interests of one individual or group compared to another individual or group."
+        },
+        "multichoice_3": {
+            "label": "constitutionality_and_jurisprudence",
+            "description": "The constraints imposed on or freedoms granted to individuals, government, and corporations via the Constitution, Bill of Rights and other amendments, or judicial interpretation. This deals specifically with the authority of government to regulate, and the authority of individuals/corporations to act independently of government."
+        },
+        "multichoice_4": {
+            "label": "policy_prescription_and_evaluation",
+            "description": "Particular policies proposed for addressing an identified problem, and figuring out if certain policies will work, or if existing policies are effective."
+        },
+        "multichoice_5": {
+            "label": "law_and_order_crime_and_justice",
+            "description": "Specific policies in practice and their enforcement, incentives, and implications. Includes stories about enforcement and interpretation of laws by individuals and law enforcement, breaking laws, loopholes, fines, sentencing and punishment. Increases or reductions in crime."
+        },
+        "multichoice_6": {
+            "label": "security_and_defence",
+            "description": "Security, threats to security, and protection of one’s person, family, in-group, nation, etc. Generally an action or a call to action that can be taken to protect the welfare of a person, group, nation sometimes from a not yet manifested threat."
+        },
+        "multichoice_7": {
+            "label": "health_and_safety",
+            "description": "Healthcare access and effectiveness, illness, disease, sanitation, obesity, mental health effects, prevention of or perpetuation of gun violence, infrastructure and building safety."
+        },
+        "multichoice_8": {
+            "label": "quality_of_life",
+            "description": "The effects of a policy on individuals’ wealth, mobility, access to resources, happiness, social structures, ease of day-to-day routines, quality of community life etc."
+        },
+        "multichoice_9": {
+            "label": "cultural_identity",
+            "description": "The social norms, trends, values and customs constituting culture(s), as they relate to a specific policy issue."
+        },
+        "multichoice_10": {
+            "label": "public_opinion",
+            "description": "References to general social attitudes, polling and demographic information, as well as implied or actual consequences of diverging from or getting ahead of public opinion or polls."
+        },
+        "multichoice_11": {
+            "label": "political",
+            "description": "Any political considerations surrounding an issue. Issue actions or efforts or stances that are political, such as partisan filibusters, lobbyist involvement, bipartisan efforts, deal-making and vote trading, appealing to one’s base, mentions of political manoeuvring. Explicit statements that a policy issue is good or bad for a particular political party."
+        },
+        "multichoice_12": {
+            "label": "external_regulation_and_reputation",
+            "description": "The United States’ external relations with another nation; the external relations of one state with another; or relations between groups. This includes trade agreements and outcomes, comparisons of policy outcomes or desired policy outcomes."
+        },
+        "multichoice_13": {
+            "label": "capacity_and_resources",
+            "description": "The lack of or availability of physical, geographical, spatial, human, and financial resources, or the capacity of existing systems and resources to implement or carry out policy goals."
+        },
+        "multichoice_14": {
+            "label": "economic",
+            "description": "The costs, benefits, or monetary/financial implications of the issue (to an individual, family, community or to the economy as a whole)."
+        },
+        "multichoice_15": {
+            "label": "other_frame",
+            "description": "Any frames that do not fit into the above categories."
+        }
+
+    },
+    "question_4": {
+        "text": "Does <image> help understanding or contextualizing the claim in <post>?",
+        "answer_1": {
+            "text": "no",
+            "label": "decorative"
+        },
+        "answer_2": {
+            "text": "yes",
+            "question_1": {
+                "text": "Does <image> contextualize the claim in <post> with concrete real-world examples and scenarios?",
+                "answer_1": {
+                    "text": "yes",
+                    "question_1": {
+                        "text": "Does <image> represent elements within the text of <post> in the form of a living being, making the claim feels more personal?",
+                        "answer_1": {
+                            "text": "yes",
+                            "label": "humanize"
+                        },
+                        "answer_2": {
+                            "text": "no",
+                            "question_1": {
+                                "text": "Does <image> contain a concrete example of a broader claim?",
+                                "answer_1": {
+                                    "text": "yes",
+                                    "label": "concretize"
+                                },
+                                "answer_2": {
+                                    "text": "no",
+                                    "label": "other_contextualization"
+                                }
+                            }
+                        }
+                    }
+                },
+                "answer_2": {
+                    "text": "no",
+                    "question_1": {
+                        "text": "Does <image> contain a visualization to support or explain the claim in <post>?",
+                        "answer_1": {
+                            "text": "yes",
+                            "question_1": {
+                                "text": "Does  <image> contain a high-detailed visualization, in the form of graphs, maps, and charts?",
+                                "answer_1": {
+                                    "text": "yes",
+                                    "label": "infographic"
+                                },
+                                "answer_2": {
+                                    "text": "no",
+                                    "question_1": {
+                                        "text": "Does the image contain A simple illustration to assist the reader in understanding the claim?",
+                                        "answer_1": {
+                                            "text": "yes",
+                                            "label": "visualise"
+                                        },
+                                        "answer_2": {
+                                            "text": "no",
+                                            "label": "other_illustration"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "answer_2": {
+                            "text": "no",
+                            "label": "other_contextualization"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "question_5": {
+        "text": "Was <image> digitally manipulated or manufactured, i.e., edited or is completely faked?",
+        "answer_1": {
+            "text": "yes",
+            "question_1": {
+                "text": "Is <image> completely fabricated? i.e, not based on a real image, but rather made from scratch?",
+                "answer_1": {
+                    "text": "yes",
+                    "question_1": {
+                        "text": "Is <image> AI-generated?",
+                        "answer_1": {
+                            "text": "yes",
+                            "label": "ai-generated"
+                        }, 
+                        "answer_2": {
+                            "text": "no",
+                            "question_1": {
+                                "text": "Does <image> contains a forged document?",
+                                "answer_1": {
+                                    "text": "yes",
+                                    "label": "forged"
+                                },
+                                "answer_2": {
+                                    "text": "no",
+                                    "question_1": {
+                                        "text": "Is <image> staged?",
+                                        "answer_1": {
+                                            "text": "yes",
+                                            "label": "staged"
+                                        },
+                                        "answer_2": {
+                                            "text": "no",
+                                            "label": "other_image_issues"
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                },
+                "answer_2": {
+                    "text": "no",
+                    "question_1": {
+                        "text": "Was <image> digitally altered?",
+                        "answer_1": {
+                            "text": "yes",
+                            "question_1": {
+                                "text": "in which way was <image> digitally altered?",
+                                "multichoice_1": {
+                                    "label": "addition",
+                                    "description": "Fake details were added to the image using digital means, such as Photoshop."
+                                },
+                                "multichoice_2": {
+                                    "label": "removal",
+                                    "description": "Real details details were erased or removed from the image, e.g., using cropping."
+                                },
+                                "multichoice_3": {
+                                    "label": "replacement",
+                                    "description": "Entire entities or elements in the image were replaced with different, fake ones."
+                                },
+                                "multichoice_4": {
+                                    "label": "textual",
+                                    "description": "Some text in the image was edited or added."
+                                },
+                                "multichoice_5": {
+                                    "label": "edit",
+                                    "description": "The image was edited in some other means, e.g., changing the facial expression of a person or adding a filter."
+                                }
+                            }
+                        },
+                        "answer_2": {
+                            "text": "no",
+                            "question_1": {
+                                "text": "Is <image> staged?",
+                                "answer_1": {
+                                    "text": "yes",
+                                    "label": "staged"
+                                },
+                                "answer_2": {
+                                    "text": "no",
+                                    "label": "other_image_issues"
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        },
+        "answer_2": {
+            "text": "no, the image is real",
+            "question": "Is there an issue with the source or credibility of <image>? i.e., does <image> or <post> come from a satirical, parodical, or otherwise unreliable source, or from and imposter account?",
+            "answer_1": {
+                "text": "yes",
+                "question_1": {
+                    "text": "Does <image> come from a clearly satirical or parodical source?",
+                    "answer_1": {
+                        "text": "yes",
+                        "label": "satire"
+                    },
+                    "answer_2": {
+                        "text": "no",
+                        "question_1": {
+                            "text": "Does <image> come from an imposter account, i.e., an account that pretends to be someone else?",
+                            "answer_1": {
+                                "text": "yes",
+                                "label": "imposter"
+                            },
+                            "answer_2": {
+                                "text": "no",
+                                "label": "other_provenance_issue"
+                            }
+                        }
+                    }
+                }
+            },
+            "answer_2": {
+                "text": "no",
+                "question_1": {
+                    "text": "Is there an issue with the way the text in <post> describes the image or relates to it?",
+                    "answer_1": {
+                        "text": "yes",
+                        "question_1": {
+                            "text": "Does the claim in <post> deny the authenticity of the image, even though <image> is real and authentic?",
+                            "answer_1": {
+                                "text": "yes",
+                                "label": "denial"
+                            },
+                            "answer_2": {
+                                "text": "no, no such claim was made.",
+                                "question_1": {
+                                    "text": "Does the claim in <post> wrongly describe an element in or an attribute of <image>?",
+                                    "answer_1": {
+                                        "text": "yes",
+                                        "question_1": {
+                                            "text": "Does the claim in <post> wrongly describe a metadata attribute of <image>?",
+                                            "answer_1": {
+                                                "text": "yes",
+                                                "question_1": {
+                                                    "text": "which metadata attribute is wrongly described?",
+                                                    "multichoice_1": {
+                                                        "label": "time_mismatch",
+                                                        "description": "The date when <image> was taken or created."
+                                                    },
+                                                    "multichoice_2": {
+                                                        "label": "place_mismatch",
+                                                        "description": "The location where <image> was taken or created."
+                                                    },
+                                                    "multichoice_3": {
+                                                        "label": "other_mismatch",
+                                                        "description": "any other type of mismatch."
+                                                    }
+                                                }
+                                            },
+                                            "answer_2": {
+                                                "text": "no",
+                                                "question_1": {
+                                                    "text": "Does the claim in <post> wrongly describes what is being depict in <image>?",
+                                                    "answer_1": {
+                                                        "text": "yes",
+                                                        "question_1": {
+                                                            "text": "What type of mismatch is it? What element is being describe wrongly?",
+                                                            "multichoice_1": {
+                                                                "label": "identity_mismatch",
+                                                                "description": "<post> incorrectly names an entity in <image>, such as a person, a brand, or an object."
+                                                            },
+                                                            "multichoice_2": {
+                                                                "label": "event_mismatch",
+                                                                "description":  "There is a discrepancy between regarding the event depicted in <image> and the textual description in <post>. (e.g., a concert is described as a protest)"
+                                                            },
+                                                            "multichoice_3": {
+                                                                "label": "other_mismatch",
+                                                                "description": "any other type of mismatch."
+                                                            }
+                                                        }
+                                                    },
+                                                    "answer_2": {
+                                                        "text": "no",
+                                                        "label": "other_mismatch"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "answer_2": {
+                                        "text": "no",
+                                        "question_1": {
+                                            "text": "Does the claim in <post> misinterpret the image or desctibe it in a misleading way?",
+                                            "answer_1": {
+                                                "text": "yes",
+                                                "question_1": {
+                                                    "text": "In which way does <post> misinterpret <image>?",
+                                                    "multichoice_1": {
+                                                        "label": "over_underestimation_of_severity",
+                                                        "description": "the text in <post> misinterprets the severity of what is depicted in <image>."
+                                                    },
+                                                    "multichoice_2": {
+                                                        "label": "misinterpretation_of_consequences",
+                                                        "description": "<post> contains a false or misleading claim regarding the consequences of what is depicted in <image>."
+                                                    },
+                                                    "multichoice_3": {
+                                                        "label": "over_underestimation_of_frequency",
+                                                        "description": "<post> misinterprets the frequency/uniqueness of the event depicted in <image>."
+                                                    },
+                                                    "multichoice_4": {
+                                                        "label": "scientific_errors_or_conspiracies",
+                                                        "description": "<post> contains a false scientific claim not grounded in scientific evidence, or promotes a known conspiracy theory."
+                                                    },
+                                                    "multichoice_5": {
+                                                        "label": "misinterpretation_of_relevance",
+                                                        "description": "<post> misinterprets the relevance of <image> to some other event, i.e., falsly claiming that it is relevant"
+                                                    },
+                                                    "multichoice_6": {
+                                                        "label": "slanted_representation",
+                                                        "description": "<post> omits other types of important context."
+                                                    },
+                                                    "multichoice_7": {
+                                                        "label": "other_misinterpretation_or_misleading_representation",
+                                                        "description": "<post> descibes <image> in a different misleading way."
+                                                    }
+                                                }
+                                            },
+                                            "answer_2": {
+                                                "text": "no",
+                                                "question_1": {
+                                                    "text": "Does <post> make scientific errors or promote conspiracies?",
+                                                    "answer_1": {
+                                                        "text": "yes",
+                                                        "label": "scientific_errors_or_conspiracies"
+                                                    },
+                                                    "answer_2": {
+                                                        "text": "no",
+                                                        "question_1": {
+                                                            "text": "Does the claim in <post> omit important relevant information?",
+                                                            "answer_1": {
+                                                                "text": "yes",
+                                                                "label": "slanted_representation"
+                                                            },
+                                                            "answer_2": {
+                                                                "text": "no",
+                                                                "label": "other_misinterpretation_or_misleading_representation"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "answer_2": {
+                        "text": "no",
+                        "label": "no_issue"
+                    }
+                }
+            }
+        }
+    }
+}
+
+

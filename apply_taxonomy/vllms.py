@@ -29,6 +29,21 @@ class ModelRequestData(NamedTuple):
     lora_requests: Optional[list[LoRARequest]] = None
 
 
+@contextmanager
+def time_counter(enable: bool):
+    if enable:
+        import time
+
+        start_time = time.time()
+        yield
+        elapsed_time = time.time() - start_time
+        print("-" * 50)
+        print("-- generate time = {}".format(elapsed_time))
+        print("-" * 50)
+    else:
+        yield
+
+
 class VLM(object):
     models = {
         "gemma3": "google/gemma-3-12b-it",
@@ -41,9 +56,7 @@ class VLM(object):
         "phi4mm": "<|image_1|>",
     }
 
-    def __init__(
-        self, args: Namespace
-    ): 
+    def __init__(self, args: Namespace):
         self.args = args
         self.model_name = args.model_name
         self.seed = args.seed
@@ -56,23 +69,9 @@ class VLM(object):
         self.processor = AutoProcessor.from_pretrained(self.model)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model)
         if args.debug_mode:
-            self.vlm = self.load_vlm()
-        else:
             self.vlm = None
-
-    @contextmanager
-    def time_counter(self, enable: bool):
-        if enable:
-            import time
-
-            start_time = time.time()
-            yield
-            elapsed_time = time.time() - start_time
-            print("-" * 50)
-            print("-- generate time = {}".format(elapsed_time))
-            print("-" * 50)
         else:
-            yield
+            self.vlm = self.load_vlm()
 
     def load_vlm(self):
         if self.model_name == "gemma3":
@@ -109,8 +108,10 @@ class VLM(object):
                 seed=self.seed,
             )
             self.lora_requests = [LoRARequest("vision", 1, vision_lora_path)]
+        else:
+            raise ValueError(f"Unsupported model: {self.model_name}")
 
-        self.vlm = LLM(**asdict(self.engine_args))
+        return LLM(**asdict(self.engine_args))
 
     def apply_chat_template(self, system_prompt: str, user_prompt: str) -> str:
         """
@@ -134,21 +135,25 @@ class VLM(object):
             messages, tokenize=False, add_generation_prompt=True
         )
         return prompt
-    
-    def batch_generate(self, input_data: List[InputData], sampling_params: SamplingParams):
+
+    def batch_generate(
+        self,
+        input_data: List[InputData],
+        images: List[Image.Image],
+        sampling_params: SamplingParams,
+    ):
         batch_size = self.args.batch_size
         assert len(input_data) == batch_size, "Number of images must match batch size."
-        
+
         inputs = []
 
-        for input in input_data:
+        for input, image in zip(input_data, images):
             inputs.append(
                 {
                     "prompt": input.chat_template,
-                    "multi_modal_data": {"image": input.image},
+                    "multi_modal_data": {"image": image},
                 }
             )
-
         lora_request = (
             [
                 LoRARequest("vision", i + 1, self.lora_requests[0].path)
@@ -157,8 +162,9 @@ class VLM(object):
             if self.lora_requests
             else None
         )
-        with self.time_counter(True):
+        with time_counter(True):
             outputs = self.vlm.generate(
                 inputs, sampling_params=sampling_params, lora_request=lora_request
             )
         return outputs
+

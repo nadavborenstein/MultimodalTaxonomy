@@ -151,3 +151,41 @@ def parse_generations(inputs, outputs):
             print(f"Error decoding JSON for image {input.image_path}: {e}")
     df = pd.DataFrame(json_outputs)
     return df
+
+
+def strip_text(text: str) -> str:
+    """Strip leading and trailing whitespace from the text."""
+    text = text.strip()
+    if text.startswith("```json") and text.endswith("```"):
+        text = text[7:-3].strip()
+    return text
+
+
+def process_outputs(outputs: List, inputs: List[InputData]) -> List[Dict[str, Any]]:
+    """Process the outputs from the model into a list of dictionaries."""
+    processed_outputs = []
+    for output, input_data in zip(outputs, inputs):
+        try:
+            generated_text = output.outputs[0].text
+            generated_text = strip_text(generated_text)
+            json_output = json.loads(generated_text)
+            output_data = {
+                "image_path": input_data.image_path,
+                "taxonomy_level": input_data.taxonomy_level,
+                "labels": json_output.get("labels", []),
+                "note": input_data.note,
+                "post": input_data.post,
+            }
+            processed_outputs.append(output_data)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON for image {input_data.image_path}: {e}")
+            processed_outputs.append(
+                {
+                    "image_path": input_data.image_path,
+                    "taxonomy_level": input_data.taxonomy_level,
+                    "json_output": None,
+                    "note": input_data.note,
+                    "post": input_data.post,
+                }
+            )
+    return processed_outputs
