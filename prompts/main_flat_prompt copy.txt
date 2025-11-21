@@ -25,10 +25,10 @@ The taxonomy has a JSON structure that looks like that:
         }
         TOP_LEVEL_LABEL_3: {
             "definition": DEFINITION,
-            "labels": {
-                LABEL_NAME_3: LABEL_DESCRIPTION,
-                LABEL_NAME_4: LABEL_DESCRIPTION,
-            }
+            "labels": [
+                LABEL_NAME_3,
+                LABEL_NAME_4,
+            ]
         }
     }
 }

@@ -95,33 +95,33 @@
                     {
                         "description": "possible positive emotions that <image> might evoke",
                         "labels":
-                        {
-                            "joy": "A feeling of pleasure and happiness.",
-                            "hope": "A feeling of expectation and desire for a certain thing to happen.",
-                            "pride": "A feeling of deep pleasure or satisfaction derived from one's own achievements, the achievements of those with whom one is closely associated, or from qualities or possessions that are widely admired.",
-                            "curiousity": "A strong desire to know or learn something.",
-                            "other_positive_emotion": "Any other positive emotion not listed above."
-                        }
+                        [
+                            "joy",
+                            "hope",
+                            "pride",
+                            "curiousity",
+                            "other_positive_emotion"
+                        ]
                     },
                     "negative_emotions":
                     {
                         "description": "possible negative emotions that <image> might evoke",
                         "labels":
-                        {
-                            "anger": "A strong feeling of annoyance, displeasure, or hostility.",
-                            "sadness": "A feeling of sorrow or unhappiness.",
-                            "fear": "An unpleasant emotion caused by the threat of danger, pain, or harm.",
-                            "ridicule": "The subjection of someone or something to contemptuous and dismissive language or behavior.",
-                            "other_negative_emotion": "Any other negative emotion not listed above."
-                        }
+                        [
+                            "anger",
+                            "sadness",
+                            "fear",
+                            "ridicule",
+                            "other_negative_emotion"
+                        ]
                     },
                     "neutral_emotions":
                     {
                         "description": "possible neutral emotions that <image> might evoke",
                         "labels":
-                            {
-                                "neutral_emotion": "<image> evokes a neutral emotion"
-                            }
+                        [
+                            "neutral_emotion"
+                        ]
                     }
                 },
                 "framing":

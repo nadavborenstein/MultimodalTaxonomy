@@ -3,7 +3,7 @@ from contextlib import contextmanager
 from dataclasses import asdict
 from PIL import Image
 from argparse import Namespace
-from typing import NamedTuple, Optional, List
+from typing import NamedTuple, Optional, List, Dict, Any
 
 from glob import glob
 
@@ -16,17 +16,8 @@ from vllm.multimodal.image import convert_image_mode
 from vllm.sampling_params import GuidedDecodingParams
 import json
 import pandas as pd
-from input_output_utils import InputData
 from qwen_vl_utils import smart_resize
-
-
-class ModelRequestData(NamedTuple):
-    engine_args: EngineArgs
-    prompt: str
-    image_data: list[Image.Image] = None
-    stop_token_ids: Optional[list[int]] = None
-    chat_template: Optional[str] = None
-    lora_requests: Optional[list[LoRARequest]] = None
+from multimodal_interactor import MultimodalNote, MultimodalInteractorBase
 
 
 @contextmanager
@@ -81,6 +72,7 @@ class VLM(object):
                 max_num_seqs=2,
                 limit_mm_per_prompt={"image": 1},
                 seed=self.seed,
+                enable_prefix_caching=True,
             )
             self.lora_requests = None
 
@@ -91,6 +83,7 @@ class VLM(object):
                 max_num_seqs=5,
                 limit_mm_per_prompt={"image": 1},
                 seed=self.seed,
+                enable_prefix_caching=True,
             )
             self.lora_requests = None
 
@@ -106,6 +99,7 @@ class VLM(object):
                 enable_lora=True,
                 max_lora_rank=320,
                 seed=self.seed,
+                enable_prefix_caching=True,
             )
             self.lora_requests = [LoRARequest("vision", 1, vision_lora_path)]
         else:
@@ -113,23 +107,32 @@ class VLM(object):
 
         return LLM(**asdict(self.engine_args))
 
-    def apply_chat_template(self, system_prompt: str, user_prompt: str) -> str:
+    def apply_chat_template(
+        self,
+        system_prompt: str = None,
+        user_prompt: str = None,
+        messages: List[Dict[str, Any]] = None,
+    ) -> str:
         """
         Applies a chat template to the given system and user prompts.
         This is a placeholder method and should be implemented in subclasses.
         """
-        messages = [
-            {
-                "role": "system",
-                "content": [{"type": "text", "text": system_prompt}],
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": user_prompt},
-                ],
-            },
-        ]
+        assert (
+            system_prompt is not None or messages is not None
+        ), "Either system_prompt/user_prompt or messages must be provided."
+        if messages is None:
+            messages = [
+                {
+                    "role": "system",
+                    "content": [{"type": "text", "text": system_prompt}],
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": user_prompt},
+                    ],
+                },
+            ]
 
         prompt = self.processor.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
@@ -138,20 +141,17 @@ class VLM(object):
 
     def batch_generate(
         self,
-        input_data: List[InputData],
-        images: List[Image.Image],
+        input_data: List[MultimodalInteractorBase],
         sampling_params: SamplingParams,
     ):
-        batch_size = self.args.batch_size
-        assert len(input_data) == batch_size, "Number of images must match batch size."
+        batch_size = len(input_data)
 
         inputs = []
-
-        for input, image in zip(input_data, images):
+        for input in input_data:
             inputs.append(
                 {
-                    "prompt": input.chat_template,
-                    "multi_modal_data": {"image": image},
+                    "prompt": self.apply_chat_template(messages=input.messages),
+                    "multi_modal_data": {"image": input.note.image},
                 }
             )
         lora_request = (
@@ -167,4 +167,3 @@ class VLM(object):
                 inputs, sampling_params=sampling_params, lora_request=lora_request
             )
         return outputs
-

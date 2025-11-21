@@ -1,11 +1,5 @@
 from argparse import Namespace
 from vllm.utils import FlexibleArgumentParser
-from input_output_utils import (
-    InputData,
-    construct_raw_prompt,
-    load_images,
-    process_outputs,
-)
 from structured_outputs import Labels
 from vllms import VLM
 from glob import glob
@@ -15,6 +9,12 @@ import logging
 from vllm import SamplingParams
 from vllm.sampling_params import GuidedDecodingParams
 from typing import List
+from PIL import Image
+from multimodal_interactor import (
+    MultimodalNote,
+    MultimodalQAInteractor,
+    MultimodalTaxonomyInteractor,
+)
 
 # set up logging
 logging.basicConfig(
@@ -48,15 +48,22 @@ def parse_args():
         "--prompt-path",
         type=str,
         help="path to the directory containing the images",
-        default="/home/knf792/gits/MultimodalTaxonomy/prompts/",
+        default="/home/knf792/gits/MultimodalTaxonomy/prompts/main_flat_prompt.txt",
     )
     parser.add_argument(
         "--debug-mode", action="store_true", help="Whether to load the model or not. "
     )
     parser.add_argument(
-        "--taxonomy-level",
+        "--taxonomy-path",
         type=str,
-        default="multimodal_taxonomy",
+        help="path to the taxonomy file",
+        default="/home/knf792/gits/MultimodalTaxonomy/prompts/full_taxonomy.json",
+    )
+    parser.add_argument(
+        "--taxonomy-level",
+        nargs="+",
+        type=str,
+        default=["multimodal_taxonomy"],
         help="The taxonomy level to apply. Currently only 'type' and 'subtype' are supported.",
     )
     parser.add_argument(
@@ -81,8 +88,8 @@ def parse_args():
     parser.add_argument(
         "--task",
         type=str,
-        default="type_analysis",
-        choices=["type_analysis", "type_analysis_binary"],
+        default="baseline",
+        choices=["baseline", "flowchart"],
         help="The task to run. Currently only 'type_analysis' is supported.",
     )
     parser.add_argument(
@@ -117,7 +124,7 @@ def parse_args():
     parser.add_argument(
         "--max-tokens",
         type=int,
-        default=2048,
+        default=1024,
         help="Maximum number of tokens to generate.",
     )
     parser.add_argument(
@@ -129,86 +136,103 @@ def parse_args():
     return parser.parse_args()
 
 
+def log_args(args):
+    logging.info("Arguments:")
+    for arg, value in vars(args).items():
+        logging.info(f"  {arg}: {value}")
+
+
 def load_inputs(args, vlm):
     notes = pd.read_csv(args.notes_path)
+    interactor_type = (
+        MultimodalTaxonomyInteractor
+        if "baseline" in args.task
+        else MultimodalQAInteractor
+    )
     if args.max_samples > 0:
         notes = notes.head(args.max_samples)
 
-    inputs = []
-    for image_name, note, post in zip(
-        notes["image_name"].values, notes["summary"].values, notes["full_text"].values
+    interactors = []
+    for image_name, image_url, note, post in zip(
+        notes["image_name"].values,
+        notes["image_urls"].values,
+        notes["summary"].values,
+        notes["full_text"].values,
     ):
 
-        input_data = InputData(
+        input_data = MultimodalNote(
             image_path=args.image_path + image_name,
+            image_url=image_url,
             note=note,
             post=post,
-            image_placeholder=vlm.image_substring_marker,
-            taxonomy_level=args.taxonomy_level,
         )
-        prompt = construct_raw_prompt(args.prompt_path, input_data)
-        input_data.system_prompt = prompt["system_prompt"]
-        input_data.user_prompt = prompt["user_prompt"]
-        inputs.append(input_data)
-    return inputs
+        interactor = interactor_type(
+            note=input_data,
+            args=args,
+            image_substring_marker=vlm.image_substring_marker,
+        )
+        interactors.append(interactor)
+    return interactors
 
 
-def one_chat_turn(vlm: VLM, inputs_data: List[InputData], images: List[Image.Image]):
-    """
-    Generates outputs for a single chat turn using the VLM.
-    """
-
-    sampling_params = SamplingParams(
-        temperature=0.0,
-        max_tokens=1024,
-        stop_token_ids=None,
-        guided_decoding=GuidedDecodingParams(json=Labels.model_json_schema()),
-    )
+def update_taxonomy_level(
+    interactors: List[MultimodalTaxonomyInteractor], taxonomy_level
+) -> None:
+    for interactor in interactors:
+        interactor.update_taxonomy(level=taxonomy_level)
 
 
-def main(args: Namespace):
-
-    vlm = VLM(args)
-    logging.info(f"Using model: {args.model_name}")
-
-    inputs = load_inputs(args, vlm)
-    logging.info(f"Loaded {len(inputs)} inputs for processing.")
-
-    schema = Labels
-    guided_decoding_params = GuidedDecodingParams(json=schema.model_json_schema())
-
-    sampling_params = SamplingParams(
-        temperature=args.temperature,
-        max_tokens=args.max_tokens,
-        stop_token_ids=None,
-        guided_decoding=guided_decoding_params,
-    )
+def get_all_outputs(interactors: List[MultimodalTaxonomyInteractor]) -> List[dict]:
     all_outputs = []
-    for batch_data in range(0, len(inputs), args.batch_size):
+    for interactor in interactors:
+        all_outputs.append(interactor.get_output_dict())
+    return all_outputs
+
+
+def baseline_main(args):
+    logging.info(f"starting baseline run...")
+    logging.info(f"Using model: {args.model_name}")
+    vlm = VLM(args)
+    logging.info(f"Model loaded.")
+
+    logging.info(f"loading inputs.")
+    interactors = load_inputs(args, vlm)
+
+    logging.info(f"Loaded {len(interactors)} inputs for processing.")
+
+    for batch_data in range(0, len(interactors), args.batch_size):
         batch_id = batch_data // args.batch_size
         logging.info(f"Processing batch {batch_id + 1} with {args.batch_size} inputs.")
 
-        batch_inputs = inputs[batch_data : batch_data + args.batch_size]
-        image_paths = [input_data.image_path for input_data in batch_inputs]
-        images = load_images(image_paths, enable_smart_resize=True)
+        batch_interactors = interactors[batch_data : batch_data + args.batch_size]
+        logging.info(f"loading images")
+        for interactor in batch_interactors:
+            interactor.load_image(enable_smart_resize=True)
 
-        for input in batch_inputs:
-            input.chat_template = vlm.apply_chat_template(
-                input.user_prompt, input.system_prompt
+        for taxonomy_level in args.taxonomy_level:
+            update_taxonomy_level(batch_interactors, taxonomy_level)
+            logging.info(f"Set taxonomy level to {taxonomy_level}.")
+            guided_decoding_params = interactors[0].get_guided_decoding_params()
+            sampling_params = SamplingParams(
+                temperature=args.temperature,
+                max_tokens=args.max_tokens,
+                stop_token_ids=None,
+                guided_decoding=guided_decoding_params,
+                repetition_penalty=1.1,
+                stop=["\n    \n    \n", "\n  \n  \n", "\n \n \n", "\n\n\n\n"],
             )
+            logging.info(f"Generating outputs for batch {batch_id + 1}.")
+            outputs = vlm.batch_generate(batch_interactors, sampling_params)
+            logging.info(f"Done generating outputs for batch {batch_id + 1}.")
+            logging.info(f"updating labels with llm answers")
+            for interactor, output in zip(batch_interactors, outputs):
+                interactor.process_output(output)
 
-        logging.info(f"Loaded {len(images)} images for batch {batch_id + 1}.")
-
-        # Prepare the prompt and system prompt
-        logging.info(f"Generating outputs for batch {batch_id + 1}.")
-        # Generate outputs using the VLM
-        outputs = vlm.batch_generate(batch_inputs, images, sampling_params)
-        logging.info(f"Done generating outputs for batch {batch_id + 1}.")
-        # Process outputs as needed, e.g., save to file or print
-        processed_outputs = process_outputs(outputs, batch_inputs)
-        all_outputs.extend(processed_outputs)
-
-    # Save all outputs to a CSV file
+        logging.info(f"Done processing batch {batch_id + 1}.")
+        logging.info(f"Deleting images")
+        for interactor in batch_interactors:
+            interactor.remove_image()
+    all_outputs = get_all_outputs(interactors)
     logging.info("Saving outputs to CSV file.")
     output_df = pd.DataFrame(all_outputs)
     output_df.to_csv(
@@ -218,6 +242,19 @@ def main(args: Namespace):
     logging.info(f"Outputs saved to {args.save_path}.")
 
 
+def flowchart_main(args):
+    logging.info(f"starting baseline run...")
+    logging.info(f"Using model: {args.model_name}")
+    vlm = VLM(args)
+    logging.info(f"Model loaded.")
+
+    logging.info(f"loading inputs.")
+    interactors = load_inputs(args, vlm)
+
+    logging.info(f"Loaded {len(interactors)} inputs for processing.")
+
+
 if __name__ == "__main__":
     args = parse_args()
-    main(args)
+    log_args(args)
+    baseline_main(args)
