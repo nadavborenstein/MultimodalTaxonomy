@@ -1,0 +1,139 @@
+questions:
+  - question: Does the Tweet text (💬) make a claim? (either explicitly or implicitly)
+    explanation: Here we focus only on the Tweet's text, and not the image and/or text embedded within the image.
+    answers:
+      no:
+        question: Does the image (🖼️) contain any text?
+        explanation: Here we do not care about small spans of text that appear in a natural scene, like a street name on a traffic sign, unless the text is significant to the claim.
+        answers:
+          no:
+            label: no text in image
+          yes:
+            question: Does the *text* in the image (🖼️) contain a claim?
+            explanation: If yes, what is it?
+            answers:
+              yes:
+                label: textual claim in image
+              no:
+                label: no textual claim in the text
+      yes:
+        question: Does the image (🖼️) contain any text?
+        explanation: In this case, we do not care about small spans of text that appears in a natural scene, like a street name on a traffic sign, unless the text is significant to the claim.
+        answers:
+          no:
+            label: no text in image
+          yes:
+            question: Does the *text* in the image (🖼️) contain a claim?
+            explanation: If yes, what is it?
+            answers:
+              yes:
+                label: textual claim in image
+              no:
+                label: no textual claim in the text
+  - question: Is the image fake, edited, AI-generated, or digitally manipulated in any way?
+    explanation: Please consult the "Additional Context 💡" if you are not sure.
+    answers:
+      no:
+        question: Does the image (🖼️) *depict* information from an unreliable or unverifiable source (e.g., parody accounts, impostors, etc.)? If so, who?
+        explanation: |
+          **Example**: *screenshot(s)* depicting unreliable accounts or media platforms? 
+
+          **Importantly**, answer "Yes" only if the "Additional Context 💡" indicates that the source is unreliable or unverifiable (do not rely on your own intuition or research). 
+        answers:
+          yes:
+            label: unreliable
+          no:
+            question: Is there anything wrong or misleading about the image, *independent of the tweet's text*?
+            explanation: Please consult the "Additional Context 💡" if you are not sure.
+            answers:
+              no:
+                label: Nothing wrong
+              yes:
+                label: other misleading
+      yes:
+        question: Is the image completely AI-generated?
+        explanation: Is it a fake image that was created entirely using AI? If the image is based on a real image that has been edited with AI, answer "no".
+        answers:
+          yes:
+            question: Does the tweet claim or suggest that the AI-generated image is authentic?
+            explanation: That is, is the tweet misleading because it claims that a fake image is real (either explicitly or implicitly)?
+            answers:
+              yes:
+                label: AI-generated
+              no:
+                label: benign edits
+          no:
+            question: Does the image contain any false information? If yes, what is it?
+            explanation: For example, does the image contain fake headlines, fake quotes, or fake statistics?
+            answers:
+              yes:
+                label: fabricated
+              no:
+                question: Are the edits or manipulations misleading? i.e., are these edits the source of the misinformation? If so, what are they?
+                explanation: | 
+                  For example, do the edits mislead people by creating false evidence for the claim, omitting a key part of the image, or falsely labelling the image? 
+
+                  Non-misleading edits could include changes that do not affect the meaning of the image, e.g., creating a collage.
+                answers:
+                  yes:
+                    label: manipulated
+                  no:
+                    label: benign edits      
+  - question: Would the claim (made in the Tweet text 💬 and/or Image text 🖼️) be clear or complete even without the image?
+    explanation: |
+      **Example of "Yes:"** attaching an image of an American flag to a tweet containing a claim about the American job market. 
+
+      **Example of "No:"** attaching an image of a graph that shows data about the American job market to a tweet discussing the data. 
+    answers:
+      yes:
+        question: Does the image provide any additional information or evidence (even if it is false) for the claim?
+        explanation: Answer "No" if the claim is completely independent of the image, and the image's only purpose is to make the post more attractive or attention-grabbing.
+        answers:
+          yes:
+            question: Does the tweet claim that the image is fake, edited, or staged?
+            explanation: That is, does the text **deny** the authenticity or validity of the image?
+            answers:
+              yes:
+                label: denial
+              no:
+                question: Does the text make an incorrect claim about the content or context of the image (e.g., incorrect time/place, wrong person, incorrect event)? If yes, specify what it is.
+                explanation: | 
+                  Focus on **factual** mismatches between the content of the image and the content of Tweet text. 
+
+                  **Example:** The text wrongly claim that an old image is of a recent event.
+                answers:
+                  yes:
+                    label: mismatch
+                  no:
+                    question: Does the text describe the image in a misleading way?
+                    explanation: Does the text misinterpret (intentionally or unintentionally) the meaning or consequences of the image? In other words, does it  draw false or exaggerated conclusions from the image?
+                    answers:
+                      yes:
+                        label: slanted
+                      no:
+                        label: other issues
+          no:
+            label: decorative
+      no:
+        question: Does the tweet claim that the image is fake, edited, or staged?
+        explanation: That is, does the text **deny** the authenticity or validity of the image?
+        answers:
+          yes:
+            label: denial
+          no:
+            question: Does the text make an incorrect claim about the content or context of the image (e.g., incorrect time/place, wrong person, incorrect event)? If yes, specify what it is.
+            explanation: |
+              Focus on **factual** mismatches between the content of the image and the content of Tweet text. 
+
+              **Example:** The text wrongly claim that an old image is of a recent event.
+            answers:
+              yes:
+                label: mismatch
+              no:
+                question: Does the text describe the image in a misleading way?
+                explanation: Does the text misinterpret (intentionally or unintentionally) the meaning or consequences of the image? In other words, does it  draw false or exaggerated conclusions from the image?
+                answers:
+                  yes:
+                    label: slanted
+                  no:
+                    label: other issues

@@ -3,7 +3,45 @@ from typing import List, Dict, Any
 from PIL import Image
 from qwen_vl_utils import smart_resize
 import pandas as pd
+import yaml
 
+
+
+def single_turn_message(system_prompt: str = None, user_text: str = None, assistant_answer: str = None, image=None) -> List[Dict[str, Any]]:
+    messages = []
+    assert user_text or assistant_answer or system_prompt, "At least one ofsystem_prompt, user_text or assistant_answer must be provided."
+    
+    if system_prompt:
+        messages.append(
+            {
+                "role": "system",
+                "content": [{"type": "text", "text": system_prompt}],
+            }
+        )
+    if user_text:
+        if image is None:
+            messages.append(
+                {"role": "user", "content": [{"type": "text", "text": user_text}]}
+                )
+        else:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": user_text},
+                        {"type": "image", "image": image},
+                    ],
+                }
+            )
+    if assistant_answer:
+        messages.append(
+            {
+                "role": "assistant",
+                "content": [{"type": "text", "text": assistant_answer}],
+            }
+        )
+    return messages
+    
 
 
 def get_possible_taxonomy_levels(taxonomy: Dict[str, Any]) -> List[str]:
@@ -143,6 +181,33 @@ def strip_output_text(text: str) -> str:
     if text.startswith("```json") and text.endswith("```"):
         text = text[7:-3].strip()
     return text
+
+
+def load_taxonomy(taxonomy_path: str) -> Dict:
+    if "yaml" in taxonomy_path or "yml" in taxonomy_path:
+        taxonomy = yaml.safe_load(open(taxonomy_path, "r"))
+
+        # replace boolean keys with "yes" and "no"
+        def replace_bool_keys(d):
+            if isinstance(d, dict):
+                new_dict = {}
+                for k, v in d.items():
+                    if k is True:
+                        k = "Yes"
+                    elif k is False:
+                        k = "No"
+                    new_dict[k] = replace_bool_keys(v)
+                return new_dict
+            elif isinstance(d, list):
+                return [replace_bool_keys(i) for i in d]
+            else:
+                return d
+
+        taxonomy = replace_bool_keys(taxonomy)
+    else:
+        taxonomy = json.load(open(taxonomy_path, "r"))
+
+    return taxonomy
 
 
 # def process_outputs(outputs: List, inputs: List[MultimodalNote]) -> List[Dict[str, Any]]:

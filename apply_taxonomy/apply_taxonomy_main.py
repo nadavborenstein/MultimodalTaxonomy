@@ -6,11 +6,11 @@ from glob import glob
 import pandas as pd
 import os
 import logging
-from vllm import SamplingParams
+from  vllm import SamplingParams
 from vllm.sampling_params import GuidedDecodingParams
 from typing import List
 from PIL import Image
-from multimodal_interactor import (
+from .multimodal_interactor import (
     MultimodalNote,
     MultimodalQAInteractor,
     MultimodalTaxonomyInteractor,
@@ -42,13 +42,13 @@ def parse_args():
         "--notes-path",
         type=str,
         help="path to the directory containing the images",
-        default="/home/knf792/gits/MultimodalTaxonomy/data/tweets_with_images.csv",
+        default="data/tweets_with_images.csv",
     )
     parser.add_argument(
         "--prompt-path",
         type=str,
         help="path to the directory containing the images",
-        default="/home/knf792/gits/MultimodalTaxonomy/prompts/main_flat_prompt.txt",
+        default="prompts/main_flat_prompt.txt",
     )
     parser.add_argument(
         "--debug-mode", action="store_true", help="Whether to load the model or not. "
@@ -57,7 +57,7 @@ def parse_args():
         "--taxonomy-path",
         type=str,
         help="path to the taxonomy file",
-        default="/home/knf792/gits/MultimodalTaxonomy/prompts/full_taxonomy.json",
+        default="prompts/full_taxonomy.json",
     )
     parser.add_argument(
         "--taxonomy-level",
@@ -113,7 +113,7 @@ def parse_args():
         "--save-path",
         type=str,
         help="path to where to save the results",
-        default="/home/knf792/gits/MultimodalTaxonomy/results/",
+        default="results/",
     )
     parser.add_argument(
         "--batch-size",
@@ -133,7 +133,33 @@ def parse_args():
         default=-1,
         help="Maximum samples to load.",
     )
+    parser.add_argument(
+        "--num-demonstrations",
+        type=int,
+        default=4,
+        help="Number of demonstrations to include in the prompt.",
+    )
+    parser.add_argument(
+        "--demonstration-type",
+        type=str,
+        default="question_single",
+        choices=["same_single", "same_flow", "all", "random", "random_2", "random_3", "random_4", "random_5"],
+        help="Type of demonstrations to include in the prompt.",
+    )
+    parser.add_argument(
+        "--demo-data-path",
+        type=str,
+        help="Path to the demonstration data CSV file.",
+        default="data/qualification_dataset_en.csv",
+    )
+    parser.add_argument(
+        "--demo-images-path",
+        type=str,
+        help="Path to the demonstration images directory.",
+        default="data/qualification_images/",
+    )
     return parser.parse_args()
+
 
 
 def log_args(args):

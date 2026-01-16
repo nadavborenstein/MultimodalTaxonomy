@@ -17,7 +17,7 @@ from vllm.sampling_params import GuidedDecodingParams
 import json
 import pandas as pd
 from qwen_vl_utils import smart_resize
-from multimodal_interactor import MultimodalNote, MultimodalInteractorBase
+from .multimodal_interactor import MultimodalNote, MultimodalInteractorBase
 
 
 @contextmanager
@@ -37,7 +37,8 @@ def time_counter(enable: bool):
 
 class VLM(object):
     models = {
-        "gemma3": "google/gemma-3-12b-it",
+        "smolvlm": "HuggingFaceTB/SmolVLM-256M-Instruct",
+        "gemma3": "google/gemma-3-4b-it",
         "qwen25": "Qwen/Qwen2.5-VL-7B-Instruct",
         "phi4mm": "microsoft/Phi-4-multimodal-instruct",
     }
@@ -45,6 +46,7 @@ class VLM(object):
         "gemma3": "<start_of_image>",
         "qwen25": "<|vision_start|><|image_pad|><|vision_end|>",
         "phi4mm": "<|image_1|>",
+        "smolvlm": "<image>",
     }
 
     def __init__(self, args: Namespace):
@@ -70,7 +72,7 @@ class VLM(object):
                 model=self.model,
                 max_model_len=8192,
                 max_num_seqs=2,
-                limit_mm_per_prompt={"image": 1},
+                limit_mm_per_prompt={"image": 5},
                 seed=self.seed,
                 enable_prefix_caching=True,
             )
@@ -81,7 +83,7 @@ class VLM(object):
                 model=self.model,
                 max_model_len=32768 if smart_resize is None else 14000,
                 max_num_seqs=5,
-                limit_mm_per_prompt={"image": 1},
+                limit_mm_per_prompt={"image": 5},
                 seed=self.seed,
                 enable_prefix_caching=True,
             )
