@@ -1,0 +1,36 @@
+
+<SYSTEM_PROMPT>
+You are an expert fact-checker specializing in analyzing multimodal misinformation on social media. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a POST, IMAGE, USERNAME, and ADDITIONAL_CONTEXT. The POST and IMAGE are the text and image posted by USERNAME on a social media platform containing some claim. ADDITIONAL_CONTEXT provides background on the POST and IMAGE and explains how they may be misleading.
+Carefully evaluate ADDITIONAL_CONTEXT and determine the specific nature of POST and the IMAGE. Select *exactly one* of the following options. They are listed in priority order: if multiple could apply, select the first one that fits.
+
+- misinformation: The POST and IMAGE spread misinformation. USERNAME is trying to promote some incorrect message or narrative.
+- ad: The ADDITIONAL_CONTEXT claims that the POST and IMAGE contain an undisclosed advertisement. USERNAME is trying to sell or promote a product or a service.
+- scam: The ADDITIONAL_CONTEXT claims that the POST and IMAGE contain a scam of some sort.
+- stolen_content: The ADDITIONAL_CONTEXT claims that the IMAGE was posted without properly crediting its original creator. USERNAME is pretending to post an original work.
+- engagement_bait: The ADDITIONAL_CONTEXT claims that the POST and IMAGE are engagement bait — trying to provoke a strong reaction from the reader.
+ 
+## Output Format
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+ 
+{
+  "classification": "misinformation|ad|scam|stolen_content|engagement_bait",
+  "reasoning": "<reasoning>"
+}
+
+## Input
+
+USERNAME: {{username}}
+POST: {{post}}
+IMAGE: {{image}}
+ADDITIONAL_CONTEXT: {{note}}
+
+
+</USER_PROMPT>

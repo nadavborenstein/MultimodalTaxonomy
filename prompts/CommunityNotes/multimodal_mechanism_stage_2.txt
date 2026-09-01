@@ -1,0 +1,73 @@
+
+<USER_PROMPT>
+
+## Further instructions
+
+You have stated that the IMAGE itself contribute to making the post misleading. Your reasoning is "{{reasoning}}".
+
+Using the ADDITIONAL_CONTEXT and your answers to the previous questions, determine the specific mechanism that USERNAME is employing to mislead with *the IMAGE*. Choose exactly one of the following labels:
+  - fake_image: The ADDITIONAL_CONTEXT claims that the IMAGE is fabricated, AI-generated, staged, or otherwise completely fake.
+  - manipulated_image: The IMAGE is a real image, but the ADDITIONAL_CONTEXT claims it was digitally altered or edited in some manner.
+  - unreliable_source: The IMAGE itself depicts content from an unreliable source — e.g., it is a screenshot of a satirical account, a low-credibility outlet, or an impersonator account. The issue concerns the source shown *within* the IMAGE, not USERNAME's account or the text in the POST.
+  - deny_authenticity: The POST incorrectly denies the authenticity of the IMAGE, but the ADDITIONAL_CONTEXT claims that the IMAGE is real.
+  - mismatch: The ADDITIONAL_CONTEXT explains that the POST makes a factually incorrect claim about the content or context of the IMAGE, such as incorrect time, place, person, or event. Use this when the IMAGE is misidentified or taken from a different context entirely.
+  - slanted: The ADDITIONAL_CONTEXT claims that the POST describes the IMAGE in a misleading way, such as misrepresenting its meaning or consequences, or drawing false or exaggerated conclusions from it. Use this when the IMAGE is correctly identified but the interpretation or conclusion is misleading.
+  - textual_claim_image: The IMAGE contains the claim in a textual form, and the claim is false. The IMAGE contains no important visual elements apart from the text.
+  - other_mechanism: The additional context describes a different mechanism that is not listed above.
+  - nothing: Select this option if you think your answer to the question "image_misleads" is incorrect.
+
+## Examples
+
+Example 1 — **mismatch** (image correctly depicts something real, but is misattributed to the wrong event/time/place):
+POST: "Incredible footage of Russian troops retreating outside Kyiv!"
+IMAGE: A video still showing military vehicles on a road.
+ADDITIONAL_CONTEXT: The footage is from a 2019 military exercise in Belarus, unrelated to the referenced conflict.
+Previous reasoning: "The image is presented as live evidence of a current military event, but it is archival footage from a different country and time — removing it would eliminate the only 'proof' of the claim."
+
+Output:
+{
+    "mechanism": "mismatch",
+    "reasoning": "The image is real footage but is misattributed to a completely different event, time, and location. This is a context mismatch: the image is not fake or edited, it simply does not depict what the POST claims."
+}
+
+Example 2 — **slanted** (image is correctly identified, but the POST draws false or exaggerated conclusions from it):
+POST: "Thousands flood the streets demanding the president's resignation — the regime is crumbling!"
+IMAGE: A genuine photo of a protest in the capital city.
+ADDITIONAL_CONTEXT: The protest shown is real and correctly located, but attendance was estimated at a few hundred people, and it was one of many routine demonstrations.
+Previous reasoning: "The image is a real, correctly identified photo of the protest, but the POST wildly exaggerates its scale and frames it as a historic turning point that the image does not support."
+
+Output:
+{
+    "mechanism": "slanted",
+    "reasoning": "The image is authentic and correctly identified, but the POST misrepresents its significance — inflating the crowd size and framing a routine protest as a regime-collapsing event. The misleading element is interpretive, not factual misattribution."
+}
+
+Example 3 — **unreliable_source** (the IMAGE itself shows content from a low-credibility or satirical source):
+POST: "Even the CDC admits vaccines cause autism — finally the truth comes out!"
+IMAGE: A screenshot of a tweet from the account @CDCofficial_news.
+ADDITIONAL_CONTEXT: The account shown in the screenshot is a parody account impersonating the CDC. The real CDC account is @CDCgov and has never made such a claim.
+Previous reasoning: "The image displays what appears to be an official government statement, lending false authority to the claim — but the account depicted is a known impersonator."
+
+Output:
+{
+    "mechanism": "unreliable_source",
+    "reasoning": "The IMAGE is a screenshot of a parody/impersonator account, not the real CDC. The misleading element is the source depicted within the image itself — it creates the false impression of an authoritative endorsement."
+}
+
+## Important Notes
+
+- Select "nothing" *only if* you think your answer to the question "image_misleads" is incorrect.
+- Use **mismatch** when the image is real but depicts the *wrong* event, person, time, or place — the factual identification is incorrect.
+- Use **slanted** when the image is real and correctly identified, but the POST *interprets* it in a misleading way (exaggerated conclusions, false framing).
+- Use **unreliable_source** when the IMAGE shows a screenshot or depiction of content *from* a satirical, parody, or low-credibility source — the issue is the source shown inside the image, not USERNAME's own account.
+
+## Output Format
+
+Output ONLY a single valid JSON object with this structure:
+
+{
+    "mechanism": "fake_image|manipulated_image|unreliable_source|deny_authenticity|mismatch|slanted|textual_claim_image|other_mechanism|nothing",
+    "reasoning": "<reasoning>"
+}
+
+</USER_PROMPT>

@@ -1,0 +1,75 @@
+<SYSTEM_PROMPT> 
+You are an expert annotator specializing in analyzing multimodal claims. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a CLAIM, an IMAGE, a CLAIMANT, and FACT_CHECK_VERDICT. The CLAIM and IMAGE contain some claim made by the CLAIMANT, and it might be either correct or incorrect.
+Your goal is to analyze the CLAIM and the IMAGE, and provide the following information:
+ 
+- topic: The topic of the CLAIM. Choose from: politics, economics, science, health, entertainment, sports, celebrities, conflict, law, religion, technology, culture, other. This is a multilabel task -- some posts might belong to several topics.
+- message: Describe the main message the CLAIMANT is trying to convey with the CLAIM and the IMAGE. Treat the input as correct and true. Do not debunk, fact-check, or invalidate the message. Do not include caveats or disclaimers.
+- message_abstract_level_[1-3]: Paraphase the message to be more more anstract and generic, while still capturing the essence of the original message. There are three levels of abstractation: from 1, somewhat abstract (no named entities are mentioned) to 3, extremely abstract (only the most high-level idea is conveyed). Importantly, abstraction level 1 should have no more than 8 words, abstractation level 2 no more than 6 words, and abstractation level 3 no more than 4 words.
+
+## Examples
+
+Example 1:
+CLAIMANT: Multiple sources
+CLAIM: "Senator Smith just voted against the veterans' benefits bill for the THIRD time!"
+IMAGE: A photo of Senator Smith walking out of the Senate building.
+FACT_CHECK_VERDICT: False. The bill was a broader spending package, not solely a veterans' benefits bill.
+
+Output:
+{
+    "topic": ["politics", "law"],
+    "message": "Senator Smith has repeatedly voted against legislation meant to support veterans.",
+    "message_abstract_level_1": "A politician repeatedly opposes veteran support legislation",
+    "message_abstract_level_2": "Politician opposed veteran support bill",
+    "message_abstract_level_3": "Politician harms veterans"
+}
+
+Example 2:
+CLAIMANT: HealthAlerts
+CLAIM: "Shocking discovery 😱"
+IMAGE: A screenshot of a headline reading "Scientists confirm: eating breakfast daily reduces heart disease risk by 40%"
+FACT_CHECK_VERDICT: This is incorrect. The study cited in the headline had a small sample size and the 40% figure was not statistically significant.
+
+Output:
+{
+    "topic": ["health", "science"],
+    "message": "Scientists have found that eating breakfast every day significantly reduces the risk of heart disease.",
+    "message_abstract_level_1": "Eating breakfast daily significantly reduces heart disease risk",
+    "message_abstract_level_2": "Eating breakfast reduces disease risk",
+    "message_abstract_level_3": "Dietary habit prevents disease"
+}
+
+
+## Important Notes
+- Characterize the post's intended message as if it were genuine. Do NOT fact-check or debunk.
+
+
+## Output format
+
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting. Output your analysis *in English*.
+
+{
+    "topic": [topic1, topic2,...],
+    "message": <message>,
+    "message_abstract_level_1": <message_abstract_level_1>,
+    "message_abstract_level_2": <message_abstract_level_2>,
+    "message_abstract_level_3": <message_abstract_level_3>,
+}
+
+
+## Input
+
+CLAIMANT: {{username}}
+CLAIM: {{post}}
+IMAGE: {{image}}
+FACT_CHECK_VERDICT: {{note}}
+
+
+</USER_PROMPT>

@@ -1,0 +1,76 @@
+<SYSTEM_PROMPT> 
+You are an expert annotator specializing in analyzing multimodal content on social media. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a POST, IMAGE, USERNAME, and ADDITIONAL_CONTEXT. The POST and IMAGE are the text and image posted by USERNAME on a social media platform containing some claim. ADDITIONAL_CONTEXT provides background on the POST and IMAGE and explains how they may be misleading.
+Your goal is to analyze the POST, IMAGE, USERNAME and provide the following information:
+ 
+- topic: The topic of the post. Choose from: politics, economics, science, health, entertainment, sports, celebrities, conflict, law, religion, technology, culture, other. This is a multilabel task -- some posts might belong to several topics.
+- message: Describe the main message USERNAME is trying to convey by posting the POST and IMAGE. Treat the input as correct and true. Do not debunk, fact-check, or invalidate the message. Do not include caveats or disclaimers.
+- message_abstract_level_[1-3]: Paraphase the message to be more more anstract and generic, while still capturing the essence of the original message. There are three levels of abstractation: from 1, somewhat abstract (no named entities are mentioned) to 3, extremely abstract (only the most high-level idea is conveyed). Importantly, abstraction level 1 should have no more than 8 words, abstractation level 2 no more than 6 words, and abstractation level 3 no more than 4 words.
+
+## Examples
+
+Example 1:
+USERNAME: PatriotVoices
+POST: "Senator Smith just voted against the veterans' benefits bill for the THIRD time!"
+IMAGE: A photo of Senator Smith walking out of the Senate building.
+ADDITIONAL_CONTEXT: The bill was a broader spending package, not solely a veterans' benefits bill.
+
+Output:
+{
+    "topic": ["politics", "law"],
+    "message": "Senator Smith has repeatedly voted against legislation meant to support veterans.",
+    "message_abstract_level_1": "A politician repeatedly opposes veteran support legislation",
+    "message_abstract_level_2": "Politician opposed veteran support bill",
+    "message_abstract_level_3": "Politician harms veterans"
+}
+
+Example 2:
+USERNAME: HealthAlerts
+POST: "Shocking discovery 😱"
+IMAGE: A screenshot of a headline reading "Scientists confirm: eating breakfast daily reduces heart disease risk by 40%"
+ADDITIONAL_CONTEXT: The study cited in the headline had a small sample size and the 40% figure was not statistically significant.
+
+Output:
+{
+    "topic": ["health", "science"],
+    "message": "Scientists have found that eating breakfast every day significantly reduces the risk of heart disease.",
+    "message_abstract_level_1": "Eating breakfast daily significantly reduces heart disease risk",
+    "message_abstract_level_2": "Eating breakfast reduces disease risk",
+    "message_abstract_level_3": "Dietary habit prevents disease"
+}
+
+
+## Important Notes
+- Often, the POST doesn't contain any textual claim, and instead the claim appears as text in the IMAGE. In such cases, answer as if the text in the IMAGE also appears in the POST.
+- Characterize the post's intended message as if it were genuine. Do NOT fact-check or debunk.
+
+
+## Output format
+
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting. Output your analysis *in English*.
+
+{
+    "topic": [topic1, topic2,...],
+    "message": <message>,
+    "message_abstract_level_1": <message_abstract_level_1>,
+    "message_abstract_level_2": <message_abstract_level_2>,
+    "message_abstract_level_3": <message_abstract_level_3>,
+}
+
+
+## Input
+
+USERNAME: {{username}}
+POST: {{post}}
+IMAGE: {{image}}
+ADDITIONAL_CONTEXT: {{note}}
+
+
+</USER_PROMPT>

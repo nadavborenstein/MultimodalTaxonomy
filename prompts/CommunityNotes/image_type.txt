@@ -1,0 +1,68 @@
+<SYSTEM_PROMPT>
+You are an expert annotator specializing in analyzing image content on social media. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+
+<USER_PROMPT>
+
+You will be given an IMAGE that was posted on a social media platform. Your task is to classify the IMAGE into one or more categories from the taxonomy below.
+This is a multilabel task: an IMAGE may belong to multiple categories simultaneously. For example, a meme that is also a screenshot of a social media post should be labeled as both MEME and SOCIAL_MEDIA_SCREENSHOT.
+
+## Taxonomy
+
+- SIMPLE_PHOTO_PEOPLE: A photograph captured with a camera (with at most minimal editing such as cropping or color correction) that primarily depicts one or more people. Examples: a portrait, a candid shot of a crowd, a selfie
+- SIMPLE_PHOTO_OBJECT: A minimally edited photograph primarily depicting a physical object or product. Examples: a photo of a weapon, a consumer product, a vehicle.
+- SIMPLE_PHOTO_EVENT: A minimally edited photograph documenting a specific event or happening. Examples: a protest, a ceremony, an accident scene.
+- SIMPLE_PHOTO_ENVIRONMENT: A minimally edited photograph of a place, landscape, or setting. Examples: a cityscape, a flooded area, a building exterior.
+- SIMPLE_PHOTO_DOCUMENT: A photograph of a physical document, sign, or handwritten note. Examples: a photo of a printed receipt taken with a phone, a photo of a whiteboard.
+- SIMPLE_PHOTO_OTHER: A minimally edited photograph that does not fit any of the above subcategories. Examples: food, animals, abstract patterns.
+- SOCIAL_MEDIA_SCREENSHOT: A screen capture of content from a social media platform (e.g., X/Twitter, Facebook, Instagram, TikTok, Reddit, Telegram). The platform UI (e.g., like/share buttons, usernames, timestamps) should be at least partially visible.
+- NEWS_SCREENSHOT: A screen capture from a news source: a news website, TV broadcast, news app, or newspaper.
+- OTHER_SCREENSHOT: A clear screenshot that is not of a social media platform or a news source. The UI should be at least partially visible.
+- OFFICIAL_DOCUMENT: A digital rendering of a formal institutional document such as a government form, court filing, or official report. Distinguished from SIMPLE_PHOTO_DOCUMENT by being a direct digital reproduction rather than a casual photograph.
+- OTHER_TEXT: An image whose content is primarily text but does not fit the above text-bearing categories. Examples: a quote on a plain background, a text-only listicle, a plain text statement.
+- DATA_VISUALIZATION: A chart, graph, map, or table presenting structured quantitative or geospatial data. Examples: bar charts, line graphs, choropleth maps, statistical tables.
+- DIGITAL_ART: An illustration or rendering created from scratch using a software. Examples: digital paintings, vector art, 3D renders.
+- GRAPHIC_DESIGN: A designed visual composition for communication or promotion, combining typography, imagery, and/or layout elements. Examples: advertisements, campaign posters, branded infographics, flyers.
+- MEME: An image following a recognizable memetic template or internet humor convention, typically combining a stock or reaction image with overlaid text for humorous, satirical, or rhetorical effect.
+- ANNOTATED_IMAGE: A base image overlaid with explanatory graphical elements such as arrows, circles, labels, or highlights to draw attention to or explain specific features. Examples: a satellite image with circled areas, a photo with arrows pointing to details.
+- CAPTIONED_IMAGE: A simple structure in which a single image is paired with a text element (headline, caption, or label), typically placed above or below the image. The composition contains no more than one image and one text block.
+- IMAGE_COLLAGE: A composition of multiple photographs arranged together (e.g., in a grid or side-by-side layout) without significant additional graphic or textual elements. Examples: before/after comparisons, photo grids.
+- COMPLEX_COMPOSITE: A multi-element composition combining three or more distinct content types (e.g., photographs, text blocks, data visualizations, graphic elements, arrows) into a single structured image. Examples: conspiratorial infographics, elaborate explainer images mixing photos with maps and quoted text.
+- OTHER: Any image that does not fit the categories above.
+
+## Instructions
+
+- Examine the IMAGE carefully and assign ALL categories that apply. Do not limit yourself to a single label.
+- Apply the SIMPLE_PHOTO_* labels only to photographs that appear to be camera-captured with minimal editing. If a photo is embedded within a larger composition, label the composition type (e.g., CAPTIONED_IMAGE, COMPLEX_COMPOSITE, IMAGE_COLLAGE) but do NOT label the embedded photo separately.
+- When in doubt between CAPTIONED_IMAGE and COMPLEX_COMPOSITE, use CAPTIONED_IMAGE only if the structure is limited to one image and one text element. If there are additional elements, use COMPLEX_COMPOSITE.
+- When in doubt between CAPTIONED_IMAGE and MEME, apply MEME only if the image follows a recognizable memetic template or internet humor convention.
+- Here are some examples of common label co-occurrences:
+  - A news screenshot containing a data visualization → NEWS_SCREENSHOT + DATA_VISUALIZATION
+  - An annotated photograph of people -> ANNOTATED_IMAGE + SIMPLE_PHOTO_PEOPLE
+  - A collage with added text headers -> IMAGE_COLLAGE + CAPTIONED_IMAGE
+  - A screenshot of a Wikipedia article -> OTHER_SCREENSHOT + OTHER_TEXT
+  - A table in an official document -> OFFICIAL_DOCUMENT + DATA_VISUALIZATION
+
+
+## Output format
+
+Return a JSON object with the following fields:
+- "labels": a list of applicable category labels (use the exact uppercase identifiers above).
+- "reasoning": a brief explanation (2–3 sentences) justifying why each label was assigned.
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+
+
+Example output:
+{
+  "labels": ["SOCIAL_MEDIA_SCREENSHOT", "MEME"],
+  "reasoning": "The image is a screenshot of a Twitter post, as indicated by the visible Twitter UI elements. The content of the post is a meme using the 'distracted boyfriend' template with overlaid text."
+}
+
+
+Now classify the following IMAGE:
+
+## Input
+IMAGE: {{image}}
+
+</USER_PROMPT>

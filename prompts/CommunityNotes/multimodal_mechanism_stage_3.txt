@@ -1,0 +1,240 @@
+
+<USER_PROMPT>
+
+## Further instructions
+
+The mechanism you selected is "{{mechanism}}". Your reasoning is "{{reasoning}}".
+Your task now is to further classify the used sub mechanism. Provide the following fields:
+
+- sub_mechanism: Using the ADDITIONAL_CONTEXT, determine the *specific* sub mechanism USERNAME is using to mislead with *the IMAGE*. Choose exactly one of the following labels:
+{{sub_mechanism_options}}
+
+- sub_mechanism_reasoning: Explain your reasoning behind your selection of sub_mechanism.
+
+## Examples
+
+{{examples}}
+
+
+## Output Format
+
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+
+{
+  "sub_mechanism": "<sub_mechanism>",
+  "sub_mechanism_reasoning": "<sub_mechanism_reasoning>"
+}
+
+</USER_PROMPT>
+
+---
+
+<MISMATCH_EXAMPLES>
+
+Example — identity_mismatch:
+POST: "Senator Johnson leaving the courthouse after his indictment."
+IMAGE: A man in a suit exiting a building.
+ADDITIONAL_CONTEXT: The person pictured is Senator Williams, not Senator Johnson.
+Mechanism: mismatch | Previous reasoning: "The POST names a specific politician, but the person shown is a different official."
+Output:
+{
+  "sub_mechanism": "identity_mismatch",
+  "sub_mechanism_reasoning": "The core error is a misnamed person — the event and location may be accurate, but the wrong entity is identified."
+}
+
+Example — event_mismatch (note: if place is also wrong, still prefer event_mismatch when the nature of the event is the primary distortion):
+POST: "Violent riots erupting downtown as protesters clash with police."
+IMAGE: A large crowd gathered outdoors.
+ADDITIONAL_CONTEXT: The image is from a music festival held in the same city the previous year — no riot occurred.
+Mechanism: mismatch | Previous reasoning: "The POST describes a riot, but the crowd is at a music festival."
+Output:
+{
+  "sub_mechanism": "event_mismatch",
+  "sub_mechanism_reasoning": "The event type is fundamentally mischaracterized — a peaceful festival is presented as a violent riot. Although the location may also differ, the dominant mismatch is the nature of the event, not the place."
+}
+
+
+## Important Notes
+
+- If both place and event are wrong, pick whichever is the *primary* distortion (usually `event_mismatch`)
+- If both time and place are wrong, pick "place_mismatch".
+- `identity_mismatch` applies to misnamed persons, brands, or objects — not to mischaracterized events
+
+</MISMATCH_EXAMPLES>
+
+---
+
+<SLANTED_EXAMPLES>
+
+Example — exaggeration (about the magnitude of what IS depicted):
+POST: "Catastrophic flooding destroys entire city — thousands left homeless!"
+IMAGE: A real photo of flooded streets in one neighborhood.
+ADDITIONAL_CONTEXT: Flooding was real but limited to a few streets; no homelessness was reported.
+Mechanism: slanted | Previous reasoning: "The POST exaggerates the scale of the flooding shown."
+Output:
+{
+  "sub_mechanism": "exaggeration",
+  "sub_mechanism_reasoning": "The POST overstates how severe the depicted situation is."
+}
+
+
+Example — other_slanted_representation (important context is omitted, without fitting the other sub-options):
+POST: "Company X's CEO smiling at a press conference — while workers go on strike outside!"
+IMAGE: A real photo of a CEO smiling at a podium.
+ADDITIONAL_CONTEXT: The press conference was about an unrelated product launch; the POST omits that the strike was resolved the day before.
+Mechanism: slanted | Previous reasoning: "The POST presents one side of a story while omitting relevant context."
+Output:
+{
+  "sub_mechanism": "other_slanted_representation",
+  "sub_mechanism_reasoning": "The image is real and correctly identified, but the POST creates a false juxtaposition by omitting that the strike had already ended. The misleading element is the omission of key context, not an overstatement of severity, frequency, or consequences."
+}
+
+</SLANTED_EXAMPLES>
+
+---
+
+<MANIPULATED_IMAGE_EXAMPLES>
+
+Example — addition (new elements inserted into a real image):
+POST: "Leaked photo shows the CEO signing the secret deal."
+IMAGE: A photo of a CEO at a desk, a contract with a corporate logo visible.
+ADDITIONAL_CONTEXT: The original shows the CEO at a press conference; the document and logo were added digitally.
+Mechanism: manipulated_image | Previous reasoning: "This is a real image that was digitally manipulated to include a document that was not there."
+Output:
+{
+  "sub_mechanism": "addition",
+  "sub_mechanism_reasoning": "New visual elements were inserted into an otherwise real photograph — nothing in the original image was replaced or removed, only new fabricated content was added."
+}
+
+Example — textual (text within the image was altered):
+POST: "Official government notice banning all public gatherings."
+IMAGE: A photo of a government-letterhead document with policy text.
+ADDITIONAL_CONTEXT: The document is real but the text was altered; the original was a routine administrative notice.
+Mechanism: manipulated_image | Previous reasoning: "The image was manipulated to include fake text."
+Output:
+{
+  "sub_mechanism": "textual",
+  "sub_mechanism_reasoning": "Only the text within the image was edited — the document's visual structure and branding are genuine, making this a targeted textual manipulation rather than a broader addition or replacement."
+}
+
+Example — replacement (an existing element was swapped for a different one):
+POST: "Photo proves that Minister X attended the illegal meeting."
+IMAGE: A group photo at a meeting table; one face appears to be Minister X.
+ADDITIONAL_CONTEXT: The original photo shows a different official; Minister X's face was digitally substituted.
+Mechanism: manipulated_image | Previous reasoning: "The image was digitally altered -- a face in the image was swapped for another."
+Output:
+{
+  "sub_mechanism": "replacement",
+  "sub_mechanism_reasoning": "An existing element in the image — a person's face — was swapped with a different one. Unlike addition, something real was removed and replaced, not merely added to the scene."
+}
+
+
+## Important Notes
+
+**distinctions:**
+- `addition` → new content inserted into a real image
+- `replacement` → existing content swapped for something different
+- `textual` → only the text/labels within the image were altered (use even if the rest of the image is untouched)
+
+</MANIPULATED_IMAGE_EXAMPLES>
+
+---
+
+<FAKE_IMAGE_EXAMPLES>
+
+Example — AI_generated (The image is AI generated but presesnted as real):
+POST: "This is how the city looks like after the bombing campaign!"
+IMAGE: An ariel view of a city in ruins.
+ADDITIONAL_CONTEXT: This is an AI generated image, as was proved by Snopes.com.
+Mechanism: fake_image | Previous reasoning: "This is a fake image that was generated from scratch."
+Output:
+{
+  "sub_mechanism": "AI_generated",
+  "sub_mechanism_reasoning": "The image is completely AI generated using a generative AI model such as DALL-E."
+}
+
+Example — forgery (The image is a forged document or other text-based fake):
+POST: "Even WHO knows the truth! COVID-19 is a myth!"
+IMAGE: A tweet posted by @WHO stating that COVID-19 is a conspiracy.
+ADDITIONAL_CONTEXT: @WHO never posted this. This is a fake tweet.
+Mechanism: fake_image | Previous reasoning: "The image depicts a fake tweet."
+Output:
+{
+  "sub_mechanism": "forgery",
+  "sub_mechanism_reasoning": "The image contains a fake tweet, probably created using simple HTML editing tools, rather than with generative AI models."
+}
+</FAKE_IMAGE_EXAMPLES>
+
+---
+
+<UNRELIABLE_SOURCE_EXAMPLES>
+
+Example — satire (content is fictional by design, not intended to deceive):
+POST: "The White House just confirmed aliens are real — here's the official tweet!"
+IMAGE: A screenshot of a tweet from @WhiteHouse_News.
+ADDITIONAL_CONTEXT: @WhiteHouse_News is a well-known satire account that publishes fictional government announcements.
+Mechanism: unreliable_source | Previous reasoning: "The account shown publishes fictional content for comedic purposes."
+Output:
+{
+  "sub_mechanism": "satire",
+  "sub_mechanism_reasoning": "The account is a satirical outlet producing fictional content for comedy — distinct from an impersonator account, which mimics a real entity with intent to deceive rather than amuse."
+}
+
+Example — imposter (account is designed to be mistaken for a real entity):
+POST: "Breaking: WHO confirms 5G towers spread disease — official statement."
+IMAGE: A screenshot of a tweet from @WHO_Health.
+ADDITIONAL_CONTEXT: The real WHO account is @WHO; @WHO_Health is a copycat with no affiliation.
+Mechanism: unreliable_source | Previous reasoning: "The account mimics the real WHO to lend false authority to the claim."
+Output:
+{
+  "sub_mechanism": "imposter",
+  "sub_mechanism_reasoning": "The account is designed to be mistaken for the real WHO through name and branding similarity — the intent is deception, not satire."
+}
+
+## Important Notes
+
+**distinctions:**
+- `satire` → fictional by design; the account or outlet is openly comedic
+- `imposter` → copycat designed to be mistaken for a real, credible entity
+
+</UNRELIABLE_SOURCE_EXAMPLES>
+
+---
+
+
+
+<MANIPULATED_IMAGE>
+-- addition: Fake details were added to the IMAGE using digital means, such as Photoshop.
+-- removal: Real details were erased or removed from the IMAGE, e.g., using cropping.
+-- replacement: Entire entities or elements in the IMAGE were replaced with different, fake ones.
+-- textual: Some text in the IMAGE was edited or added.
+-- other_edit: The IMAGE was edited in some other means, e.g., changing the facial expression of a person or adding a filter.
+</MANIPULATED_IMAGE>
+
+<FAKE_IMAGE>
+-- AI_generated: The IMAGE is AI generated.
+-- forgery: The IMAGE contains a forged document, tweet or other text-based fakes.
+-- staged: The event depicted in the IMAGE was staged.
+</FAKE_IMAGE>
+
+<MISMATCH>
+-- identity_mismatch: The POST incorrectly names an entity in the IMAGE, such as a person, a brand, or an object.
+-- time_mismatch: The POST incorrectly describes the time/date of when the IMAGE was captured.
+-- place_mismatch: The POST incorrectly describes the location of where the IMAGE was captured.
+-- event_mismatch: There is a discrepancy regarding the event depicted in the IMAGE and the textual description in the POST. (e.g., a concert is described as a protest).
+-- other_mismatch: Any other type of mismatch.
+</MISMATCH>
+
+<SLANTED>
+-- exaggeration: The text in the POST describes the IMAGE in an exaggerated way, such as overstating the frequency or severity of an event depicted in the IMAGE. 
+-- scientific_errors_or_conspiracies: The POST contains a false scientific claim not grounded in scientific evidence, or promotes a known conspiracy theory.
+-- misinterpretation_of_relevance: the POST misinterprets the relevance of the IMAGE to some other event, i.e., falsely claiming that it is relevant.
+-- other_slanted_representation: The POST omits other types of important context.
+</SLANTED>
+
+<UNRELIABLE_SOURCE>
+-- satire: The IMAGE shows content from a satirical account or outlet (e.g., a screenshot of a satirical article or tweet presented as real news).
+-- imposter: The IMAGE shows content from an account impersonating a real entity (e.g., a screenshot of a fake account pretending to be a public figure or official organisation).
+-- low_credibility_source: The IMAGE shows content from a source with a known history of publishing false or unreliable information (e.g., a screenshot of a fringe outlet or conspiracy site).
+-- other_provenance_issues: The IMAGE comes from a source with other credibility issues not covered above.
+</UNRELIABLE_SOURCE>

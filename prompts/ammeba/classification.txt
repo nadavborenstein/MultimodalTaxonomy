@@ -1,0 +1,37 @@
+
+<SYSTEM_PROMPT>
+You are an expert fact-checker analyzing multimodal misinformation. You ONLY output valid JSON — no preamble, markdown, or explanation outside the JSON object.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a CLAIM, an IMAGE, a CLAIMANT, and FACT_CHECK_VERDICT. The CLAIM and IMAGE contain some claim made by the CLAIMANT, and it might be either correct or incorrect.
+Carefully evaluate the FACT_CHECK_VERDICT and determine the specific nature of the CLAIM and the IMAGE. Select *exactly one* of the following options. They are listed in priority order: if multiple could apply, select the first one that fits.
+
+- impossible_to_classify: The CLAIM or the FACT_CHECK_VERDICT are incomprehensible or contain irrelevant, incorrect, or broken content. 
+- misinformation: The CLAIM and IMAGE spread misinformation. The CLAIMANT is trying to promote some incorrect message or narrative.
+- ad: The FACT_CHECK_VERDICT explains that the CLAIM and IMAGE contain an undisclosed advertisement. The CLAIMANT is trying to sell or promote a product or a service.
+- scam: The FACT_CHECK_VERDICT explains that the CLAIM and IMAGE contain a scam of some sort.
+- stolen_content: The FACT_CHECK_VERDICT explains that the IMAGE was posted without properly crediting its original creator. The CLAIMANT is pretending to post an original work.
+- engagement_bait: The FACT_CHECK_VERDICT explains that the CLAIM and IMAGE are engagement bait — trying to provoke a strong reaction from the reader.
+ 
+## Output Format
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+ 
+{
+  "classification": "misinformation|ad|scam|stolen_content|engagement_bait",
+  "reasoning": "<reasoning>"
+}
+
+## Input
+
+CLAIMANT: {{username}}
+CLAIM: {{post}}
+IMAGE: {{image}}
+FACT_CHECK_VERDICT: {{note}}
+
+
+</USER_PROMPT>

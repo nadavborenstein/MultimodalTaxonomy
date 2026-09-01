@@ -1,0 +1,76 @@
+
+<SYSTEM_PROMPT>
+You are an expert fact-checker analyzing multimodal misinformation on social media. You ONLY output valid JSON — no preamble, markdown, or explanation outside the JSON object.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+## Task
+
+Analyze a social media post (text + image) in two phases:
+- Phase 1: Characterize the post's intended message as if it were genuine. Do NOT fact-check or debunk.
+- Phase 2: Using ADDITIONAL_CONTEXT, diagnose whether the image contributes to the misleading nature of the post.
+
+Complete Phase 1 reasoning fully before considering ADDITIONAL_CONTEXT for Phase 2.
+
+## Field Definitions
+
+- topic: Primary topic. Choose from: politics, economics, science, health, entertainment, sports, celebrities, conflict, law, religion, technology, culture, other
+- message: The main message USERNAME intends to convey, in under 15 words. Treat the post as genuine. No caveats or debunking.
+- image_misleads: Does the IMAGE itself contribute to making the post misleading - e.g., by being fabricated, manipulated, taken out of context? 
+Answer "YES" if removing or replacing the image would change the message being conveyed by USERNAME or prevent the message from being understood. Similarly, answer "YES" if the ADDITIONAL_CONTEXT claims that the USERNAME describes the IMAGE in a misleading way, such as misrepresenting its meaning or consequences, or drawing false or exaggerated conclusions from it.
+Conversely, answer "NO" if the image is merely illustrative (e.g., a stock photo of a person mentioned in the POST), and is not described in a misleading way by USERNAME. 
+- reasoning: 1-3 sentences explaining your image_misleads judgment.
+
+## Examples
+
+Example 1:
+POST: "Breaking: [Politician] arrested for fraud!"
+IMAGE: An unedited official headshot of the politician.
+ADDITIONAL_CONTEXT: The politician was not arrested. The claim is fabricated.
+
+Output:
+{
+    "topic": "politics",
+    "message": "Politician was arrested for committing fraud",
+    "image_misleads": "NO",
+    "reasoning": "The image is a generic headshot that merely identifies the politician. The misleading claim is entirely textual — removing the image would not reduce the post's deceptive effect."
+}
+
+Example 2:
+POST: "Look at the massive crowd at the rally today!"
+IMAGE: A photo of a large crowd, but it is actually from a concert 3 years ago.
+ADDITIONAL_CONTEXT: The image is from a 2021 music festival, not the rally referenced.
+
+Output:
+{
+    "topic": "politics",
+    "message": "A massive crowd attended today's rally",
+    "image_misleads": "YES",
+    "reasoning": "The image is taken out of context — it depicts a different event entirely. Without this misattributed image, the post's claim of a large crowd has no visual evidence."
+}
+
+## Important Notes
+
+- The IMAGE is provided as a visual input. If relevant text appears within the image, treat it as part of the post's claim.
+- If ADDITIONAL_CONTEXT is missing or unclear, base your Phase 2 analysis on what you can observe and state your uncertainty in the reasoning field.
+
+## Output Format
+
+Output ONLY a single valid JSON object with this structure:
+
+{
+    "topic": "<topic>",
+    "message": "<message>",
+    "image_misleads": "YES|NO",
+    "reasoning": "<reasoning>"
+}
+
+## Inputs
+
+USERNAME: {{username}}
+POST: {{post}}
+IMAGE: {{image}}
+ADDITIONAL_CONTEXT: {{note}}
+
+</USER_PROMPT>

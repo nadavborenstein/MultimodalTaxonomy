@@ -1,0 +1,43 @@
+
+<SYSTEM_PROMPT>
+You are an expert annotator specializing in analyzing multimodal content on social media. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a POST, IMAGE, and USERNAME. The POST and IMAGE are the text and image posted by USERNAME on a social media platform containing some claim, which might be either correct or incorrect.
+In addition, you will also be provided with MESSAGE, a short text written by human expert describing the main message of the post.
+
+Carefully evaluate the POST, IMAGE, and MESSAGE, and determine in what way USERNAME used the IMAGE to influence on the reader’s understanding or memory. Select one of the following:
+  - evidence: The IMAGE contains evidence for the exact claim made in the POST. For example, a post claiming a politician made a statement is accompanied by a photo of the statement.
+  - concretize: The IMAGE contains a concrete example of a broader claim in the POST. For example, a post claiming crime is rising shows a photo of a specific crime scene.
+  - humanize: The IMAGE represents elements within the POST in the form of a living being, making the claim feel more personal. For example, a post about poverty includes a photo of a specific person experiencing hardship.
+  - infographic: The IMAGE contains a high-detailed visualisation, in the form of graphs, maps, and chart flows.
+  - visualise: The IMAGE contains a simple illustration to assist the reader in understanding the claim in the POST.
+  - other_illustration: The IMAGE helps explain the POST in some other way.
+  - decorative: The IMAGE makes the POST more attractive without aiming to produce any real cognitive effects on the reader’s understanding or memory.
+
+## Important Notes
+
+- Often, the POST doesn't contain any textual claim, and instead the claim appears as text in the IMAGE. In such cases, answer as if the text in the IMAGE also appears in the POST.
+
+## Output Format
+
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+ 
+{
+  "strategy": <strategy>
+  "reasoning": <reasoning>
+}
+
+
+## Input
+USERNAME: {{username}}
+POST: {{post}}
+IMAGE: {{image}}
+MESSAGE: {{message}}
+
+</USER_PROMPT>

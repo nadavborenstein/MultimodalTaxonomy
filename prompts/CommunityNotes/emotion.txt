@@ -1,0 +1,50 @@
+
+<SYSTEM_PROMPT>
+You are an expert annotator specializing in analyzing multimodal content on social media. You answer questions with precision and conciseness.
+</SYSTEM_PROMPT>
+ 
+ 
+<USER_PROMPT>
+
+## Instructions
+
+You will be given a POST, IMAGE, and USERNAME. The POST and IMAGE are the text and image posted by USERNAME on a social media platform containing some claim, which might be either correct or incorrect.
+Carefully evaluate the POST and determine the relationship between the POST and the IMAGE. Specifically, determine which **emotion** USERNAME is trying to evoke by including the IMAGE.
+Importantly, try to estimate which emotions **USERNAME** is trying to evoke, not which emotions a random social media user might feel. For example, if the POST contain anti-LGBT content, and the IMAGE contains the pride flag, USERNAME is probably trying to evoke *anger*.
+
+
+Select any number of items from the following list:
+  - joy: A feeling of pleasure and happiness.
+  - hope: A feeling of expectation and desire for a certain thing to happen.
+  - pride: A feeling of deep pleasure or satisfaction derived from one's own achievements, the achievements of those with whom one is closely associated, or from qualities or possessions that are widely admired.
+  - curiosity: A strong desire to know or learn something.
+  - other_positive_emotion: Any other positive emotion not listed above.
+  - anger: A strong feeling of annoyance, displeasure, or hostility.
+  - sadness: A feeling of sorrow or unhappiness.
+  - fear: An unpleasant emotion caused by the threat of danger, pain, or harm.
+  - ridicule: The subjection of someone or something to contemptuous and dismissive language or behavior.
+  - other_negative_emotion: Any other negative emotion not listed above.
+  - neutral_emotion: The IMAGE evokes a neutral emotion
+
+
+## Output format
+
+Return a JSON object with the following fields:
+- "emotions": a list of applicable category labels.
+- "reasoning": a brief explanation (2–3 sentences) justifying why each label was assigned.
+Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
+
+Example output:
+{
+  "emotions": ["anger", "fear", "sadness"],
+  "reasoning": "The IMAGE is of a plane crash and the POST claims that the crush was caused by malpractice from the engineering team. The IMAGE is used to evoke anger at the engineers who failed maintaining the plane, sadness for the lost life, and fear that such accident might happen again."
+}
+
+
+## Input
+
+USERNAME: {{username}}
+POST: {{post}}
+IMAGE: {{image}}
+
+</USER_PROMPT>
