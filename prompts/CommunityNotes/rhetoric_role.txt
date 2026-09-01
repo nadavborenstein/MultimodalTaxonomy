@@ -1,43 +1,154 @@
-
 <SYSTEM_PROMPT>
-You are an expert annotator specializing in analyzing multimodal content on social media. You answer questions with precision and conciseness.
+You are an expert annotator specializing in analyzing multimodal content on social media. You have deep knowledge of image-text relationships and visual rhetoric. You answer questions with precision and conciseness.
 </SYSTEM_PROMPT>
- 
- 
+
+
 <USER_PROMPT>
 
 ## Instructions
 
-You will be given a POST, IMAGE, and USERNAME. The POST and IMAGE are the text and image posted by USERNAME on a social media platform containing some claim, which might be either correct or incorrect.
-In addition, you will also be provided with MESSAGE, a short text written by human expert describing the main message of the post.
+You will be given a POST, IMAGE, and USERNAME. The POST and IMAGE are the text and image posted by USERNAME on a social media platform. Your goal is to analyze the functional relationship between the IMAGE and the POST — that is, what role does the IMAGE play relative to the textual content of the POST?
 
-Carefully evaluate the POST, IMAGE, and MESSAGE, and determine in what way USERNAME used the IMAGE to influence on the reader’s understanding or memory. Select one of the following:
-  - evidence: The IMAGE contains evidence for the exact claim made in the POST. For example, a post claiming a politician made a statement is accompanied by a photo of the statement.
-  - concretize: The IMAGE contains a concrete example of a broader claim in the POST. For example, a post claiming crime is rising shows a photo of a specific crime scene.
-  - humanize: The IMAGE represents elements within the POST in the form of a living being, making the claim feel more personal. For example, a post about poverty includes a photo of a specific person experiencing hardship.
-  - infographic: The IMAGE contains a high-detailed visualisation, in the form of graphs, maps, and chart flows.
-  - visualise: The IMAGE contains a simple illustration to assist the reader in understanding the claim in the POST.
-  - other_illustration: The IMAGE helps explain the POST in some other way.
-  - decorative: The IMAGE makes the POST more attractive without aiming to produce any real cognitive effects on the reader’s understanding or memory.
+Classify the IMAGE-POST pair into **one or more** of the following relationship categories, based on the taxonomy of Marsh & White (2003). The categories are organized into three high-level groups (A, B, C) according to how closely the image relates to the text.
+
+### A — Functions expressing little relation to the text
+The IMAGE has a weak conceptual connection to the POST's content. It does not directly represent or extend the claims in the text.
+
+- **A1_decorate**: The IMAGE makes the POST more visually attractive or attention-grabbing without meaningfully affecting the reader's understanding of the text. It may also interrupt continuity or match the stylistic tone of the POST.
+- **A2_elicit_emotion**: The IMAGE encourages an emotional response (e.g., shock, sympathy, outrage, humor) through its content or style, but is not closely tied to the specific factual claims in the POST. This includes cases where the IMAGE creates tension or mood through contrast in style or tone with the text.
+- **A3_control**: The IMAGE directs, holds, or regulates the reader's attention, or motivates a response (e.g., engagement, sharing, clicking). Use this when the IMAGE primarily serves to engage or motivate the reader rather than to inform.
+
+### B — Functions expressing close relation to the text
+The IMAGE has a direct conceptual connection to the POST's content. It visually restates, organizes, or explains what the text says.
+
+- **B1_reiterate**: The IMAGE visually restates or makes concrete what the text says, with minimal added interpretation. This includes showing what the text describes (concretizing), providing a visual translation of written content, showing a specific example or instance of what the text references, depicting the person or source mentioned, or presenting data as a graph.
+- **B2_organize**: The IMAGE provides spatial, temporal, or conceptual structure to the text's content — e.g., locating events in time or place, establishing a setting, containing information in a structured format (flowchart, timeline, Venn diagram), or inducing perspective by encouraging the reader to see things in their relative importance.
+- **B3_relate**: The IMAGE explicitly compares, contrasts, or draws a parallel between elements described in the text. The comparison stays within the scope of the text's own content.
+- **B4_condense**: The IMAGE reduces the text's content to its most essential or critical elements, presenting a simplified or concentrated version of the information.
+- **B5_explain**: The IMAGE makes the text's content clearer or more understandable. This includes defining concepts, or complementing the text so that image and text together convey the message more effectively than either alone.
+
+### C — Functions that go beyond the text
+The IMAGE adds meaning, interpretation, or content that is not present in the text itself.
+
+- **C1_interpret**: The IMAGE provides force, importance, or emphasis to the text's content, or documents it with factual/visual evidence not mentioned in the text. The image illustrates complex ideas in a concrete form that goes beyond what the text states.
+- **C2_develop**: The IMAGE expands on the text by introducing new details, comparisons, or contrasts using elements not present in the text. This includes analogizing (drawing a resemblance to something outside the text) or contrasting with external content for rhetorical effect.
+- **C3_transform**: The IMAGE recodes, reorganizes, or reinterprets the text in a fundamentally new way. This includes modeling cognitive or physical processes not directly observable, alternating with the text to progress a narrative, or using the text as a starting point to introduce substantially new content.
+
+## Examples
+
+Example 1 — **A2_elicit_emotion**:
+USERNAME: TruthPatriot99
+POST: "Our border is under siege. When will our leaders act?"
+IMAGE: A dramatic aerial photo of a large crowd of people at a border fence.
+
+Output:
+{
+    "image_text_relationship": ["A2_elicit_emotion"],
+    "reasoning": "The POST makes a general political claim about border policy. The IMAGE — a dramatic, large-scale aerial shot — is selected primarily to evoke alarm and urgency rather than to document a specific event referenced in the text. The emotional impact of the image is the primary function."
+}
+
+Example 2 — **B1_reiterate**:
+USERNAME: SpaceDaily
+POST: "The Ames 40x80 full-scale wind tunnel became operational in 1944. It allowed whole aircraft to be wind-tunnel-tested for the first time."
+IMAGE: A photograph of a full-sized airplane inside a wind tunnel facility.
+
+Output:
+{
+    "image_text_relationship": ["B1_reiterate"],
+    "reasoning": "The IMAGE directly shows what the text describes — a whole aircraft inside the Ames wind tunnel. It concretizes and visually restates the textual content with minimal added interpretation."
+}
+
+Example 3 — **B1_reiterate, B3_relate**:
+USERNAME: ScienceForKids
+POST: "Radio waves behave differently depending on their frequency. Low-frequency waves are absorbed quickly, while higher-frequency waves can pass through the ionosphere and escape into space."
+IMAGE: A diagram showing three types of radio waves at different frequencies, with arrows indicating their paths relative to the ionosphere and the Earth's surface.
+
+Output:
+{
+    "image_text_relationship": ["B1_reiterate", "B3_relate"],
+    "reasoning": "The IMAGE translates the written description into visual form (B1_reiterate) and explicitly compares the behavior of the three wave types by showing them side by side (B3_relate). Both functions stay closely within the scope of the text."
+}
+
+Example 4 — **A3_control, B1_reiterate, B3_relate**:
+USERNAME: FTC_Kids
+POST: "Are you a safe cyber surfer?"
+IMAGE: A cartoon turtle character named Dewie, depicted surfing on ocean waves.
+
+Output:
+{
+    "image_text_relationship": ["A3_control", "B1_reiterate", "B3_relate"],
+    "reasoning": "The cartoon character engages the reader's attention (A3_control). Dewie personifies the agency's message about internet safety, making it concrete and accessible (B1_reiterate). The ocean-surfing action draws a visual parallel to the concept of 'surfing' the internet mentioned in the text (B3_relate)."
+}
+
+Example 5 — **C1_interpret**:
+USERNAME: NeverForgetRwanda
+POST: "In 1994, during a 100-day period, approximately 800,000 Rwandan Tutsis and moderate Hutus were brutally murdered in the Rwandan genocide."
+IMAGE: A disturbing photograph showing piles of sorted human bones and a man wearing a medical mask.
+
+Output:
+{
+    "image_text_relationship": ["C1_interpret", "B1_reiterate", "A2_elicit_emotion"],
+    "reasoning": "The IMAGE goes beyond the text by emphasizing the horror and scale of the genocide through visceral visual evidence (C1_interpret). It also concretizes the text's description of mass killing by showing its physical aftermath (B1_reiterate), and evokes a strong emotional response (A2_elicit_emotion)."
+}
+
+Example 6 — **C3_transform**:
+USERNAME: AccidentReport
+POST: "A witness stated the van drove into the opposing lane at about 55 mph to pass two cars. The truck driver saw headlights through the fog, braked, skidded, and jackknifed. The van struck the right side of the tractor."
+IMAGE: An abstract overhead diagram showing the positions and trajectories of both vehicles before and at the moment of impact, with arrows indicating movement paths.
+
+Output:
+{
+    "image_text_relationship": ["C3_transform", "B3_relate"],
+    "reasoning": "The diagram models the physical process of the collision in an abstract spatial representation that goes well beyond the narrative text (C3_transform — modeling a physical process). It also contrasts the paths of the two vehicles side by side (B3_relate). Notably, the diagram omits elements central to the text (fog, motivations, consequences) and focuses only on spatial trajectories — recoding the text into a fundamentally different mode."
+}
+
+Example 7 — **B2_organize**:
+USERNAME: HistoryTimeline
+POST: "NACA/NASA Contribution to Aeronautics — 1944: Ames 40x80 wind tunnel became operational."
+IMAGE: A timeline layout with a photograph of an airplane in a wind tunnel, placed next to the year 1944 along a chronological axis spanning 1915–2003.
+
+Output:
+{
+    "image_text_relationship": ["B2_organize"],
+    "reasoning": "The timeline format locates the specific accomplishment in time (B2_organize), providing temporal structure to the text's content. The photograph is embedded within this organizational framework."
+}
+
+Example 8 — **A1_decorate**:
+USERNAME: DailyBuzz
+POST: "5 tips to boost your productivity this week 🚀"
+IMAGE: A generic stock photo of a person typing on a laptop at a clean desk.
+
+Output:
+{
+    "image_text_relationship": ["A1_decorate"],
+    "reasoning": "The IMAGE is a generic stock photo that makes the post visually appealing but does not relate to any specific tip or claim in the text. It serves a purely decorative function."
+}
+
 
 ## Important Notes
 
-- Often, the POST doesn't contain any textual claim, and instead the claim appears as text in the IMAGE. In such cases, answer as if the text in the IMAGE also appears in the POST.
+- This is a **multilabel** task: a single IMAGE-POST pair can fulfill multiple functions simultaneously. Assign all that apply.
+- Focus on the **functional relationship** between the IMAGE and the POST's textual content — not on the image's subject matter in isolation.
+- The categories refer to the image's role relative to the text, not to the image's inherent quality or genre.
+- When the IMAGE contains text (e.g., a screenshot of a headline, a meme with overlaid text), treat the text within the IMAGE as part of the visual content and assess its relationship to the POST.
+- If the POST has minimal or no text, base your analysis on whatever text is present (including hashtags, captions, or emojis).
+- Classify at the most specific applicable level. For example, if an image both reiterates and explains the text, assign both B1_reiterate and B5_explain.
+- Prefer labels where the function is clearly present. Do not assign a label based on weak or speculative connections.
 
 ## Output Format
 
-Output ONLY a JSON object with the following structure. Do not include any preamble, explanation, or markdown formatting.
- 
+Output ONLY a single valid JSON object with this structure. Do not include any preamble, explanation, or markdown formatting.
+
 {
-  "strategy": <strategy>
-  "reasoning": <reasoning>
+    "image_text_relationship": ["label_1", "label_2", ...],
+    "reasoning": "<reasoning>"
 }
 
 
 ## Input
+
 USERNAME: {{username}}
 POST: {{post}}
 IMAGE: {{image}}
-MESSAGE: {{message}}
 
 </USER_PROMPT>
